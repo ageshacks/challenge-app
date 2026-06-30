@@ -151,34 +151,34 @@ window.addEventListener('error', function(e){
   var WORKOUT_PLAN = [
     { day: 1, focus: "Ganzkörper", exercises: [{ name: "Kniebeugen (ohne Gewicht)", sets: 3, reps: "15" }, { name: "Liegestütze", sets: 3, reps: "10" }, { name: "Plank", sets: 3, reps: "30 Sek" }, { name: "Ausfallschritte", sets: 3, reps: "10/Seite" }] },
     { day: 2, focus: "Aktive Erholung", exercises: [{ name: "Spaziergang / Stretching", sets: 1, reps: "20 Min" }] },
-    { day: 3, focus: "Oberkörper + Hanteln", exercises: [{ name: "Bizeps Curls (10kg)", sets: 3, reps: "12" }, { name: "Schulterdrücken (10kg)", sets: 3, reps: "12" }, { name: "Liegestütze", sets: 3, reps: "12" }, { name: "Trizeps Kickbacks (10kg)", sets: 3, reps: "12" }] },
-    { day: 4, focus: "Unterkörper + Core", exercises: [{ name: "Goblet Squat (10kg)", sets: 3, reps: "15" }, { name: "Romanian Deadlift (10kg je Hand)", sets: 3, reps: "12" }, { name: "Crunches", sets: 3, reps: "20" }, { name: "Mountainclimbers", sets: 3, reps: "30 Sek" }] },
+    { day: 3, focus: "Oberkörper + Hanteln", exercises: [{ name: "Bizeps Curls (Hanteln)", sets: 3, reps: "12" }, { name: "Schulterdrücken (Hanteln)", sets: 3, reps: "12" }, { name: "Liegestütze", sets: 3, reps: "12" }, { name: "Trizeps Kickbacks (Hanteln)", sets: 3, reps: "12" }] },
+    { day: 4, focus: "Unterkörper + Core", exercises: [{ name: "Goblet Squat (Hanteln)", sets: 3, reps: "15" }, { name: "Romanian Deadlift (Hanteln je Hand)", sets: 3, reps: "12" }, { name: "Crunches", sets: 3, reps: "20" }, { name: "Mountainclimbers", sets: 3, reps: "30 Sek" }] },
     { day: 5, focus: "Aktive Erholung", exercises: [{ name: "Yoga / Stretching", sets: 1, reps: "20 Min" }] },
     { day: 6, focus: "Ganzkörper HIIT", exercises: [{ name: "Burpees", sets: 3, reps: "10" }, { name: "Jumping Jacks", sets: 3, reps: "30 Sek" }, { name: "Squat Jumps", sets: 3, reps: "12" }, { name: "High Knees", sets: 3, reps: "30 Sek" }] },
     { day: 7, focus: "Ruhetag 🧘", exercises: [{ name: "Vollständige Erholung", sets: 1, reps: "—" }] },
 
-    { day: 8, focus: "Oberkörper Push", exercises: [{ name: "Liegestütze", sets: 4, reps: "12" }, { name: "Schulterdrücken (10kg)", sets: 4, reps: "12" }, { name: "Seitliches Heben (10kg)", sets: 3, reps: "12" }, { name: "Trizeps Dips (Stuhl)", sets: 3, reps: "12" }] },
-    { day: 9, focus: "Oberkörper Pull", exercises: [{ name: "Bizeps Curls (10kg)", sets: 4, reps: "12" }, { name: "Bent-over Row (10kg je Hand)", sets: 4, reps: "12" }, { name: "Hammer Curls (10kg)", sets: 3, reps: "10" }, { name: "Plank", sets: 3, reps: "40 Sek" }] },
-    { day: 10, focus: "Beine & Po", exercises: [{ name: "Sumo Squats (10kg)", sets: 4, reps: "15" }, { name: "Hip Thrusts", sets: 4, reps: "15" }, { name: "Ausfallschritte mit Hanteln", sets: 3, reps: "10/Seite" }, { name: "Wadenheben", sets: 3, reps: "20" }] },
-    { day: 11, focus: "Core & Cardio", exercises: [{ name: "Crunches", sets: 3, reps: "25" }, { name: "Leg Raises", sets: 3, reps: "15" }, { name: "Russian Twists (10kg)", sets: 3, reps: "20" }, { name: "Jumping Jacks", sets: 3, reps: "45 Sek" }] },
+    { day: 8, focus: "Oberkörper Push", exercises: [{ name: "Liegestütze", sets: 4, reps: "12" }, { name: "Schulterdrücken (Hanteln)", sets: 4, reps: "12" }, { name: "Seitliches Heben (Hanteln)", sets: 3, reps: "12" }, { name: "Trizeps Dips (Stuhl)", sets: 3, reps: "12" }] },
+    { day: 9, focus: "Oberkörper Pull", exercises: [{ name: "Bizeps Curls (Hanteln)", sets: 4, reps: "12" }, { name: "Bent-over Row (Hanteln je Hand)", sets: 4, reps: "12" }, { name: "Hammer Curls (Hanteln)", sets: 3, reps: "10" }, { name: "Plank", sets: 3, reps: "40 Sek" }] },
+    { day: 10, focus: "Beine & Po", exercises: [{ name: "Sumo Squats (Hanteln)", sets: 4, reps: "15" }, { name: "Hip Thrusts", sets: 4, reps: "15" }, { name: "Ausfallschritte mit Hanteln", sets: 3, reps: "10/Seite" }, { name: "Wadenheben", sets: 3, reps: "20" }] },
+    { day: 11, focus: "Core & Cardio", exercises: [{ name: "Crunches", sets: 3, reps: "25" }, { name: "Leg Raises", sets: 3, reps: "15" }, { name: "Russian Twists (Hanteln)", sets: 3, reps: "20" }, { name: "Jumping Jacks", sets: 3, reps: "45 Sek" }] },
     { day: 12, focus: "Aktive Erholung", exercises: [{ name: "Spaziergang / Stretching", sets: 1, reps: "25 Min" }] },
-    { day: 13, focus: "Ganzkörper Kraft", exercises: [{ name: "Deadlift (10kg je Hand)", sets: 4, reps: "10" }, { name: "Schulterdrücken (10kg)", sets: 4, reps: "10" }, { name: "Squat + Press (10kg)", sets: 3, reps: "12" }, { name: "Plank", sets: 3, reps: "45 Sek" }] },
+    { day: 13, focus: "Ganzkörper Kraft", exercises: [{ name: "Deadlift (Hanteln je Hand)", sets: 4, reps: "10" }, { name: "Schulterdrücken (Hanteln)", sets: 4, reps: "10" }, { name: "Squat + Press (Hanteln)", sets: 3, reps: "12" }, { name: "Plank", sets: 3, reps: "45 Sek" }] },
     { day: 14, focus: "Ruhetag 🧘", exercises: [{ name: "Vollständige Erholung", sets: 1, reps: "—" }] },
 
-    { day: 15, focus: "Push Intensiv", exercises: [{ name: "Liegestütze (Diamant)", sets: 4, reps: "12" }, { name: "Schulterdrücken (10kg)", sets: 4, reps: "15" }, { name: "Seitliches Heben (10kg)", sets: 4, reps: "12" }, { name: "Trizeps Kickbacks (10kg)", sets: 4, reps: "15" }] },
-    { day: 16, focus: "Pull Intensiv", exercises: [{ name: "Bizeps Curls (10kg)", sets: 4, reps: "15" }, { name: "Bent-over Row (10kg)", sets: 4, reps: "15" }, { name: "Hammer Curls (10kg)", sets: 4, reps: "12" }, { name: "Shrugs (10kg)", sets: 3, reps: "15" }] },
-    { day: 17, focus: "Beine Intensiv", exercises: [{ name: "Bulgarian Split Squat (10kg)", sets: 4, reps: "10/Seite" }, { name: "Sumo Squat (10kg)", sets: 4, reps: "15" }, { name: "Hip Thrusts mit Hantel", sets: 4, reps: "15" }, { name: "Wadenheben einbeinig", sets: 3, reps: "15/Seite" }] },
-    { day: 18, focus: "Core Intensiv", exercises: [{ name: "Plank", sets: 4, reps: "1 Min" }, { name: "Russian Twists (10kg)", sets: 4, reps: "25" }, { name: "Leg Raises", sets: 4, reps: "15" }, { name: "Bicycle Crunches", sets: 3, reps: "30" }] },
+    { day: 15, focus: "Push Intensiv", exercises: [{ name: "Liegestütze (Diamant)", sets: 4, reps: "12" }, { name: "Schulterdrücken (Hanteln)", sets: 4, reps: "15" }, { name: "Seitliches Heben (Hanteln)", sets: 4, reps: "12" }, { name: "Trizeps Kickbacks (Hanteln)", sets: 4, reps: "15" }] },
+    { day: 16, focus: "Pull Intensiv", exercises: [{ name: "Bizeps Curls (Hanteln)", sets: 4, reps: "15" }, { name: "Bent-over Row (Hanteln)", sets: 4, reps: "15" }, { name: "Hammer Curls (Hanteln)", sets: 4, reps: "12" }, { name: "Shrugs (Hanteln)", sets: 3, reps: "15" }] },
+    { day: 17, focus: "Beine Intensiv", exercises: [{ name: "Bulgarian Split Squat (Hanteln)", sets: 4, reps: "10/Seite" }, { name: "Sumo Squat (Hanteln)", sets: 4, reps: "15" }, { name: "Hip Thrusts mit Hanteln", sets: 4, reps: "15" }, { name: "Wadenheben einbeinig", sets: 3, reps: "15/Seite" }] },
+    { day: 18, focus: "Core Intensiv", exercises: [{ name: "Plank", sets: 4, reps: "1 Min" }, { name: "Russian Twists (Hanteln)", sets: 4, reps: "25" }, { name: "Leg Raises", sets: 4, reps: "15" }, { name: "Bicycle Crunches", sets: 3, reps: "30" }] },
     { day: 19, focus: "Aktive Erholung", exercises: [{ name: "Yoga / Stretching", sets: 1, reps: "30 Min" }] },
     { day: 20, focus: "HIIT Ganzkörper", exercises: [{ name: "Burpees", sets: 4, reps: "12" }, { name: "Squat Jumps", sets: 4, reps: "15" }, { name: "Mountainclimbers", sets: 4, reps: "45 Sek" }, { name: "High Knees", sets: 4, reps: "45 Sek" }] },
     { day: 21, focus: "Ruhetag 🧘", exercises: [{ name: "Vollständige Erholung", sets: 1, reps: "—" }] },
 
-    { day: 22, focus: "Push Peak", exercises: [{ name: "Liegestütze (Fuß erhöht)", sets: 5, reps: "12" }, { name: "Arnold Press (10kg)", sets: 4, reps: "12" }, { name: "Seitliches Heben (10kg)", sets: 4, reps: "15" }, { name: "Trizeps Dips", sets: 4, reps: "15" }] },
-    { day: 23, focus: "Pull Peak", exercises: [{ name: "Bizeps Curls (10kg)", sets: 5, reps: "15" }, { name: "Bent-over Row (10kg)", sets: 5, reps: "12" }, { name: "Konzentrations-Curls (10kg)", sets: 3, reps: "12/Seite" }, { name: "Plank", sets: 3, reps: "1 Min" }] },
-    { day: 24, focus: "Beine Peak", exercises: [{ name: "Kniebeugen (10kg)", sets: 5, reps: "15" }, { name: "Bulgarian Split Squat (10kg)", sets: 4, reps: "12/Seite" }, { name: "Romanian Deadlift (10kg)", sets: 4, reps: "12" }, { name: "Hip Thrusts", sets: 4, reps: "20" }] },
-    { day: 25, focus: "Core Peak", exercises: [{ name: "Plank", sets: 5, reps: "1 Min" }, { name: "Russian Twists (10kg)", sets: 4, reps: "30" }, { name: "Leg Raises", sets: 4, reps: "20" }, { name: "Mountainclimbers", sets: 4, reps: "1 Min" }] },
+    { day: 22, focus: "Push Peak", exercises: [{ name: "Liegestütze (Fuß erhöht)", sets: 5, reps: "12" }, { name: "Arnold Press (Hanteln)", sets: 4, reps: "12" }, { name: "Seitliches Heben (Hanteln)", sets: 4, reps: "15" }, { name: "Trizeps Dips", sets: 4, reps: "15" }] },
+    { day: 23, focus: "Pull Peak", exercises: [{ name: "Bizeps Curls (Hanteln)", sets: 5, reps: "15" }, { name: "Bent-over Row (Hanteln)", sets: 5, reps: "12" }, { name: "Konzentrations-Curls (Hanteln)", sets: 3, reps: "12/Seite" }, { name: "Plank", sets: 3, reps: "1 Min" }] },
+    { day: 24, focus: "Beine Peak", exercises: [{ name: "Kniebeugen (Hanteln)", sets: 5, reps: "15" }, { name: "Bulgarian Split Squat (Hanteln)", sets: 4, reps: "12/Seite" }, { name: "Romanian Deadlift (Hanteln)", sets: 4, reps: "12" }, { name: "Hip Thrusts", sets: 4, reps: "20" }] },
+    { day: 25, focus: "Core Peak", exercises: [{ name: "Plank", sets: 5, reps: "1 Min" }, { name: "Russian Twists (Hanteln)", sets: 4, reps: "30" }, { name: "Leg Raises", sets: 4, reps: "20" }, { name: "Mountainclimbers", sets: 4, reps: "1 Min" }] },
     { day: 26, focus: "Aktive Erholung", exercises: [{ name: "Stretching + Atemübungen", sets: 1, reps: "30 Min" }] },
-    { day: 27, focus: "Ganzkörper Kraft", exercises: [{ name: "Squat + Press (10kg)", sets: 5, reps: "12" }, { name: "Deadlift (10kg)", sets: 5, reps: "10" }, { name: "Liegestütze", sets: 5, reps: "15" }, { name: "Plank", sets: 3, reps: "1 Min" }] },
+    { day: 27, focus: "Ganzkörper Kraft", exercises: [{ name: "Squat + Press (Hanteln)", sets: 5, reps: "12" }, { name: "Deadlift (Hanteln)", sets: 5, reps: "10" }, { name: "Liegestütze", sets: 5, reps: "15" }, { name: "Plank", sets: 3, reps: "1 Min" }] },
     { day: 28, focus: "Aktive Erholung", exercises: [{ name: "Spaziergang / Dehnen", sets: 1, reps: "30 Min" }] },
 
     { day: 29, focus: "HIIT Finale", exercises: [{ name: "Burpees", sets: 5, reps: "15" }, { name: "Squat Jumps", sets: 5, reps: "15" }, { name: "Mountainclimbers", sets: 5, reps: "1 Min" }, { name: "Liegestütze", sets: 5, reps: "15" }] },
@@ -714,6 +714,16 @@ window.addEventListener('error', function(e){
 
   function App() {
     var STORAGE_KEY = "jeffreys-30-tage-challenge-completed";
+    var INTRO_KEY = "jeffreys-30-tage-challenge-intro-seen";
+    var initialIntroSeen = (function () {
+      try { return localStorage.getItem(INTRO_KEY) === "1"; } catch (e) { return false; }
+    })();
+    var s0 = useState(!initialIntroSeen); var showIntro = s0[0], setShowIntro = s0[1];
+    function dismissIntro() {
+      try { localStorage.setItem(INTRO_KEY, "1"); } catch (e) {}
+      setShowIntro(false);
+    }
+
     var initialCompleted = (function () {
       try {
         var raw = localStorage.getItem(STORAGE_KEY);
@@ -951,7 +961,40 @@ window.addEventListener('error', function(e){
     var week = Math.floor((activeDay - 1) / 7);
     var accent = WEEK_COLORS[week] || WEEK_COLORS[0];
 
+    if (showIntro) {
+      return h('div', { className: "page-enter", style: { minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 } },
+        h('div', { className: "glass celebrate", style: { borderRadius: 22, padding: "32px 26px", maxWidth: 420, width: "100%" } },
+          h('div', { style: { fontSize: 40, marginBottom: 10, textAlign: "center" } }, "🌱💪"),
+          h('div', { style: { fontSize: 15, color: "#e2e8f0", textAlign: "center", fontWeight: 700, marginBottom: 4 } }, "Willkommen! 👋"),
+          h('h1', { style: { fontSize: 22, fontWeight: 900, color: "#f8fafc", textAlign: "center", margin: "0 0 6px", letterSpacing: -0.3 } }, "Vegan Workout Challenge"),
+          h('div', { style: { fontSize: 13, color: "#94a3b8", textAlign: "center", marginBottom: 22 } }, "30 Tage · Training & Ernährung kombiniert"),
+          h('div', { style: { display: "flex", flexDirection: "column", gap: 14, marginBottom: 24 } },
+            [
+              { icon: "🏋️", text: "30 Tage strukturiertes Home-Workout. Am besten mit Kurzhanteln, es gehen aber auch Alternativen wie gefüllte Wasserflaschen, ein Rucksack mit Büchern oder einfach das eigene Körpergewicht." },
+              { icon: "🥗", text: "Vegane Mahlzeiten mit vollständigen Rezepten – iss so viele davon, wie für dich passen." },
+              { icon: "✅", text: "Hak jeden Tag ab, sobald du Workout & Ernährung geschafft hast." },
+              { icon: "📱", text: "Dein Fortschritt wird automatisch auf diesem Gerät gespeichert." }
+            ].map(function(item, i){
+              return h('div', { key: i, style: { display: "flex", gap: 12, alignItems: "flex-start" } },
+                h('div', { style: { fontSize: 20, flexShrink: 0 } }, item.icon),
+                h('div', { style: { fontSize: 13.5, color: "#cbd5e1", lineHeight: 1.5 } }, item.text)
+              );
+            })
+          ),
+          h('button', {
+            className: "tap",
+            onClick: dismissIntro,
+            style: { width: "100%", padding: "14px", borderRadius: 16, border: "none", background: accent, color: "#0f172a", fontWeight: 800, fontSize: 15, cursor: "pointer", boxShadow: "0 4px 18px " + accent + "70" }
+          }, "Los geht's →")
+        )
+      );
+    }
+
+
+    var workoutNeedsDumbbells = workout.exercises.some(function(ex){ return /hantel/i.test(ex.name); });
+
     var dayButtons = [];
+
     for (var i = 1; i <= 30; i++) {
       var d = i;
       var w = Math.floor((d - 1) / 7);
@@ -1086,6 +1129,10 @@ window.addEventListener('error', function(e){
               style: { padding: "5px 12px", borderRadius: 14, border: "1px solid #334155", background: "transparent", color: "#94a3b8", fontWeight: 600, cursor: "pointer", fontSize: 12 }
             }, copiedMsg && tab === "workout" ? copiedMsg : "📋 Kopieren")
           ),
+          workoutNeedsDumbbells ? h('div', { className: "glass", style: { borderRadius: 12, padding: "10px 14px", marginBottom: 14, display: "flex", gap: 8, alignItems: "flex-start" } },
+            h('span', { style: { fontSize: 14 } }, "💡"),
+            h('span', { style: { fontSize: 12, color: "#94a3b8", lineHeight: 1.5 } }, "Keine Hanteln zur Hand? Gefüllte Wasserflaschen, ein Rucksack mit Büchern oder das eigene Körpergewicht funktionieren genauso gut.")
+          ) : null,
           exerciseRows,
           h('div', { className: "glass", style: { borderRadius: 16, padding: "18px 16px", marginTop: 16, textAlign: "center" } },
             h('div', { style: { fontSize: 11, letterSpacing: 2, color: "#64748b", fontWeight: 700, textTransform: "uppercase", marginBottom: 8 } }, "Pausen-Timer"),
