@@ -753,6 +753,37 @@ window.addEventListener('error', function(e){
     var s8 = useState(false); var celebrationShown = s8[0], setCelebrationShown = s8[1];
     var s9 = useState(false); var scrolled = s9[0], setScrolled = s9[1];
     var s10 = useState(false); var justCompleted = s10[0], setJustCompleted = s10[1];
+    var s11 = useState(60); var timerSeconds = s11[0], setTimerSeconds = s11[1];
+    var s12 = useState(60); var timerTotal = s12[0], setTimerTotal = s12[1];
+    var s13 = useState(false); var timerRunning = s13[0], setTimerRunning = s13[1];
+    var timerRef = React.useRef(null);
+
+    React.useEffect(function () {
+      if (timerRunning && timerSeconds > 0) {
+        timerRef.current = setTimeout(function () { setTimerSeconds(function(s){ return s - 1; }); }, 1000);
+      } else if (timerRunning && timerSeconds === 0) {
+        setTimerRunning(false);
+        playTimerAlarm();
+        if (navigator.vibrate) { try { navigator.vibrate([200, 100, 200, 100, 200]); } catch(e){} }
+      }
+      return function () { clearTimeout(timerRef.current); };
+    }, [timerRunning, timerSeconds]);
+
+    function setTimerPreset(sec) {
+      clearTimeout(timerRef.current);
+      setTimerRunning(false);
+      setTimerSeconds(sec);
+      setTimerTotal(sec);
+    }
+    function toggleTimer() {
+      if (timerSeconds === 0) { setTimerSeconds(timerTotal); }
+      setTimerRunning(function(r){ return !r; });
+    }
+    function resetTimer() {
+      clearTimeout(timerRef.current);
+      setTimerRunning(false);
+      setTimerSeconds(timerTotal);
+    }
 
     React.useEffect(function () {
       function onScroll() { setScrolled(window.scrollY > 12); }
@@ -762,6 +793,35 @@ window.addEventListener('error', function(e){
 
     function openRecipe(mealName) { var r = RECIPES[mealName]; if (r) { setActiveRecipe(r); setActiveRecipeName(mealName); } }
     function closeRecipe() { setActiveRecipe(null); setActiveRecipeName(null); }
+
+    function playTimerAlarm() {
+      try {
+        var Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return;
+        var ctx = new Ctx();
+        var now = ctx.currentTime;
+
+        function beep(t0, freq, duration, peakGain) {
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.type = "square";
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0, t0);
+          gain.gain.linearRampToValueAtTime(peakGain, t0 + 0.02);
+          gain.gain.setValueAtTime(peakGain, t0 + duration - 0.04);
+          gain.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
+          osc.start(t0);
+          osc.stop(t0 + duration + 0.02);
+        }
+
+        // Three loud, repeated beep bursts so it's hard to miss
+        for (var i = 0; i < 3; i++) {
+          var t0 = now + i * 0.4;
+          beep(t0, 1046.5, 0.22, 0.3);
+        }
+      } catch (e) {}
+    }
 
     function playCheckSound() {
       try {
@@ -962,8 +1022,8 @@ window.addEventListener('error', function(e){
         h('div', { style: { maxWidth: 600, margin: "0 auto" } },
           h('div', { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 } },
             h('div', null,
-              h('div', { style: { fontSize: 11, letterSpacing: 3, color: accent, fontWeight: 700, textTransform: "uppercase" } }, "30-Tage Challenge"),
-              h('h1', { style: { margin: "4px 0 0", fontSize: scrolled ? 17 : 24, fontWeight: 800, color: "#f8fafc", letterSpacing: -0.3, transition: "font-size 0.25s var(--ease-smooth)" } }, "Jeffrey's Challenge 💪🌱"),
+              h('div', { style: { fontSize: 11, letterSpacing: 3, color: accent, fontWeight: 700, textTransform: "uppercase" } }, "Jeffrey's 30-Tage Challenge"),
+              h('h1', { style: { margin: "4px 0 0", fontSize: scrolled ? 17 : 24, fontWeight: 800, color: "#f8fafc", letterSpacing: -0.3, transition: "font-size 0.25s var(--ease-smooth)" } }, "Vegan Workout 💪🌱"),
               currentStreak >= 2 ? h('div', { style: { marginTop: 6, fontSize: 12, color: "#fbbf24", fontWeight: 700, display: "flex", alignItems: "center", gap: 4 } },
                 h('span', { className: "flame" }, "🔥"), currentStreak + " Tage Streak"
               ) : null
@@ -1005,18 +1065,55 @@ window.addEventListener('error', function(e){
             className: "tap" + (completed[activeDay] ? " pop" : ""),
             onClick: function(){ toggle(activeDay); },
             style: {
-              padding: "8px 16px", borderRadius: 20, border: "none", cursor: "pointer", fontWeight: 700, fontSize: 13,
-              background: completed[activeDay] ? accent : "#1e293b",
-              color: completed[activeDay] ? "#0f172a" : "#94a3b8",
+              padding: "12px 22px", borderRadius: 24, border: completed[activeDay] ? "none" : "2px solid " + accent,
+              cursor: "pointer", fontWeight: 800, fontSize: 14, letterSpacing: 0.2,
+              background: completed[activeDay] ? accent : "transparent",
+              color: completed[activeDay] ? "#0f172a" : accent,
+              boxShadow: completed[activeDay] ? ("0 4px 18px " + accent + "70") : "none",
               transition: "all 0.2s", flexShrink: 0, marginTop: 4
             }
-          }, completed[activeDay] ? "✓ Erledigt" : "Als erledigt markieren")
+          }, completed[activeDay] ? "✅ Geschafft!" : "🔥 Tag abschließen")
         ),
         (justCompleted && completed[activeDay]) ? h('div', { className: "glass feedback-banner", style: { marginTop: 14, borderRadius: 12, padding: "10px 14px", display: "flex", alignItems: "center", gap: 8, borderLeft: "3px solid " + accent } },
           h('span', { style: { fontSize: 16 } }, "✨"),
           h('span', { style: { fontSize: 13, color: "#e2e8f0", fontWeight: 600 } }, "Stark gemacht! Tag " + activeDay + " geschafft.")
         ) : null,
         tab === "workout" ? h('div', { style: { marginTop: 16 } },
+          h('div', { className: "glass", style: { borderRadius: 16, padding: "18px 16px", marginBottom: 16, textAlign: "center" } },
+            h('div', { style: { fontSize: 11, letterSpacing: 2, color: "#64748b", fontWeight: 700, textTransform: "uppercase", marginBottom: 8 } }, "Pausen-Timer"),
+            h('div', { style: { fontSize: 44, fontWeight: 900, color: timerSeconds === 0 && !timerRunning ? accent : "#f8fafc", letterSpacing: -1, marginBottom: 12, fontVariantNumeric: "tabular-nums" } },
+              String(Math.floor(timerSeconds / 60)).padStart(2, "0") + ":" + String(timerSeconds % 60).padStart(2, "0")
+            ),
+            h('div', { style: { height: 4, background: "#1e293b", borderRadius: 2, marginBottom: 16, overflow: "hidden" } },
+              h('div', { style: { height: "100%", width: (timerTotal ? (timerSeconds / timerTotal) * 100 : 0) + "%", background: accent, borderRadius: 2, transition: "width 1s linear" } })
+            ),
+            h('div', { style: { display: "flex", gap: 8, justifyContent: "center", marginBottom: 14 } },
+              [30, 60, 90].map(function(sec){
+                return h('button', {
+                  key: sec, className: "tap",
+                  onClick: function(){ setTimerPreset(sec); },
+                  style: {
+                    padding: "6px 14px", borderRadius: 16, border: timerTotal === sec ? "none" : "1px solid #334155",
+                    background: timerTotal === sec ? accent : "transparent",
+                    color: timerTotal === sec ? "#0f172a" : "#94a3b8",
+                    fontWeight: 700, fontSize: 13, cursor: "pointer"
+                  }
+                }, sec + "s");
+              })
+            ),
+            h('div', { style: { display: "flex", gap: 10, justifyContent: "center" } },
+              h('button', {
+                className: "tap",
+                onClick: toggleTimer,
+                style: { padding: "10px 28px", borderRadius: 20, border: "none", background: accent, color: "#0f172a", fontWeight: 800, fontSize: 14, cursor: "pointer" }
+              }, timerRunning ? "⏸ Pause" : (timerSeconds === 0 ? "↻ Neu" : "▶ Start")),
+              h('button', {
+                className: "tap",
+                onClick: resetTimer,
+                style: { padding: "10px 18px", borderRadius: 20, border: "1px solid #334155", background: "transparent", color: "#94a3b8", fontWeight: 700, fontSize: 14, cursor: "pointer" }
+              }, "Reset")
+            )
+          ),
           exerciseRows,
           h('button', {
             className: "tap",
