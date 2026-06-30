@@ -764,7 +764,7 @@ window.addEventListener('error', function(e){
       } else if (timerRunning && timerSeconds === 0) {
         setTimerRunning(false);
         playTimerAlarm();
-        if (navigator.vibrate) { try { navigator.vibrate([200, 100, 200, 100, 200]); } catch(e){} }
+        if (navigator.vibrate) { try { navigator.vibrate([120, 80, 120]); } catch(e){} }
       }
       return function () { clearTimeout(timerRef.current); };
     }, [timerRunning, timerSeconds]);
@@ -804,22 +804,22 @@ window.addEventListener('error', function(e){
         function beep(t0, freq, duration, peakGain) {
           var osc = ctx.createOscillator();
           var gain = ctx.createGain();
-          osc.connect(gain); gain.connect(ctx.destination);
-          osc.type = "square";
+          var filter = ctx.createBiquadFilter();
+          filter.type = "lowpass";
+          filter.frequency.value = 3000;
+          osc.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+          osc.type = "sine";
           osc.frequency.value = freq;
           gain.gain.setValueAtTime(0, t0);
-          gain.gain.linearRampToValueAtTime(peakGain, t0 + 0.02);
-          gain.gain.setValueAtTime(peakGain, t0 + duration - 0.04);
+          gain.gain.linearRampToValueAtTime(peakGain, t0 + 0.04);
           gain.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
           osc.start(t0);
           osc.stop(t0 + duration + 0.02);
         }
 
-        // Three loud, repeated beep bursts so it's hard to miss
-        for (var i = 0; i < 3; i++) {
-          var t0 = now + i * 0.4;
-          beep(t0, 1046.5, 0.22, 0.3);
-        }
+        // Two gentle, short beeps - noticeable but not jarring
+        beep(now, 880, 0.3, 0.13);
+        beep(now + 0.35, 880, 0.3, 0.13);
       } catch (e) {}
     }
 
@@ -1079,7 +1079,15 @@ window.addEventListener('error', function(e){
           h('span', { style: { fontSize: 13, color: "#e2e8f0", fontWeight: 600 } }, "Stark gemacht! Tag " + activeDay + " geschafft.")
         ) : null,
         tab === "workout" ? h('div', { style: { marginTop: 16 } },
-          h('div', { className: "glass", style: { borderRadius: 16, padding: "18px 16px", marginBottom: 16, textAlign: "center" } },
+          h('div', { style: { display: "flex", justifyContent: "flex-end", marginBottom: 10 } },
+            h('button', {
+              className: "tap",
+              onClick: copyWorkout,
+              style: { padding: "5px 12px", borderRadius: 14, border: "1px solid #334155", background: "transparent", color: "#94a3b8", fontWeight: 600, cursor: "pointer", fontSize: 12 }
+            }, copiedMsg && tab === "workout" ? copiedMsg : "📋 Kopieren")
+          ),
+          exerciseRows,
+          h('div', { className: "glass", style: { borderRadius: 16, padding: "18px 16px", marginTop: 16, textAlign: "center" } },
             h('div', { style: { fontSize: 11, letterSpacing: 2, color: "#64748b", fontWeight: 700, textTransform: "uppercase", marginBottom: 8 } }, "Pausen-Timer"),
             h('div', { style: { fontSize: 44, fontWeight: 900, color: timerSeconds === 0 && !timerRunning ? accent : "#f8fafc", letterSpacing: -1, marginBottom: 12, fontVariantNumeric: "tabular-nums" } },
               String(Math.floor(timerSeconds / 60)).padStart(2, "0") + ":" + String(timerSeconds % 60).padStart(2, "0")
@@ -1113,15 +1121,6 @@ window.addEventListener('error', function(e){
                 style: { padding: "10px 18px", borderRadius: 20, border: "1px solid #334155", background: "transparent", color: "#94a3b8", fontWeight: 700, fontSize: 14, cursor: "pointer" }
               }, "Reset")
             )
-          ),
-          exerciseRows,
-          h('button', {
-            className: "tap",
-            onClick: copyWorkout,
-            style: { width: "100%", padding: "12px", borderRadius: 10, border: "1px solid " + accent, background: "transparent", color: accent, fontWeight: 700, cursor: "pointer", fontSize: 14, marginBottom: 8 }
-          }, copiedMsg && tab === "workout" ? copiedMsg : "📋 Workout kopieren"),
-          h('div', { className: "glass", style: { borderRadius: 12, padding: "12px 16px", marginTop: 8 } },
-            h('div', { style: { fontSize: 12, color: "#64748b" } }, "💡 Tipp: 60–90 Sek Pause zwischen Sätzen. Trink ausreichend Wasser!")
           )
         ) : null,
         tab === "ernaehrung" ? h('div', { style: { marginTop: 16 } },
