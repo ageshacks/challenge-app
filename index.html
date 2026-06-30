@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>Jeffrey's 30 Tage Challenge</title>
+
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Jeffrey's Challenge" />
+<meta name="theme-color" content="#0f172a" />
+
+<style>
+  html, body { margin:0; padding:0; background:#0f172a; -webkit-tap-highlight-color: transparent; overscroll-behavior:none; }
+  * { box-sizing: border-box; }
+  button { -webkit-user-select:none; user-select:none; }
+  .copyable { -webkit-user-select:text; user-select:text; }
+  #root { min-height:100vh; font-family: -apple-system, 'Inter', sans-serif; }
+  #fallback { color:#94a3b8; padding:40px 20px; text-align:center; font-family:sans-serif; }
+</style>
+</head>
+<body>
+<div id="root"><div id="fallback">Lädt…</div></div>
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+<script>
+window.addEventListener('error', function(e){
+  document.getElementById('root').innerHTML = '<div id="fallback">Fehler beim Laden: ' + e.message + '<br><br>Bitte mit Internetverbindung im Browser öffnen (nicht offline).</div>';
+});
+
+(function(){
+  if (!window.React || !window.ReactDOM) {
+    document.getElementById('root').innerHTML = '<div id="fallback">React konnte nicht geladen werden. Bitte Internetverbindung prüfen und Seite neu laden.</div>';
+    return;
+  }
+
+  var h = React.createElement;
+  var useState = React.useState;
+
+  var WORKOUT_PLAN = [
+    { day: 1, focus: "Ganzkörper", exercises: [{ name: "Kniebeugen (ohne Gewicht)", sets: 3, reps: "15" }, { name: "Liegestütze", sets: 3, reps: "10" }, { name: "Plank", sets: 3, reps: "30 Sek" }, { name: "Ausfallschritte", sets: 3, reps: "10/Seite" }] },
+    { day: 2, focus: "Aktive Erholung", exercises: [{ name: "Spaziergang / Stretching", sets: 1, reps: "20 Min" }] },
+    { day: 3, focus: "Oberkörper + Hanteln", exercises: [{ name: "Bizeps Curls (10kg)", sets: 3, reps: "12" }, { name: "Schulterdrücken (10kg)", sets: 3, reps: "12" }, { name: "Liegestütze", sets: 3, reps: "12" }, { name: "Trizeps Kickbacks (10kg)", sets: 3, reps: "12" }] },
+    { day: 4, focus: "Unterkörper + Core", exercises: [{ name: "Goblet Squat (10kg)", sets: 3, reps: "15" }, { name: "Romanian Deadlift (10kg je Hand)", sets: 3, reps: "12" }, { name: "Crunches", sets: 3, reps: "20" }, { name: "Mountainclimbers", sets: 3, reps: "30 Sek" }] },
+    { day: 5, focus: "Aktive Erholung", exercises: [{ name: "Yoga / Stretching", sets: 1, reps: "20 Min" }] },
+    { day: 6, focus: "Ganzkörper HIIT", exercises: [{ name: "Burpees", sets: 3, reps: "10" }, { name: "Jumping Jacks", sets: 3, reps: "30 Sek" }, { name: "Squat Jumps", sets: 3, reps: "12" }, { name: "High Knees", sets: 3, reps: "30 Sek" }] },
+    { day: 7, focus: "Ruhetag 🧘", exercises: [{ name: "Vollständige Erholung", sets: 1, reps: "—" }] },
+
+    { day: 8, focus: "Oberkörper Push", exercises: [{ name: "Liegestütze", sets: 4, reps: "12" }, { name: "Schulterdrücken (10kg)", sets: 4, reps: "12" }, { name: "Seitliches Heben (10kg)", sets: 3, reps: "12" }, { name: "Trizeps Dips (Stuhl)", sets: 3, reps: "12" }] },
+    { day: 9, focus: "Oberkörper Pull", exercises: [{ name: "Bizeps Curls (10kg)", sets: 4, reps: "12" }, { name: "Bent-over Row (10kg je Hand)", sets: 4, reps: "12" }, { name: "Hammer Curls (10kg)", sets: 3, reps: "10" }, { name: "Plank", sets: 3, reps: "40 Sek" }] },
+    { day: 10, focus: "Beine & Po", exercises: [{ name: "Sumo Squats (10kg)", sets: 4, reps: "15" }, { name: "Hip Thrusts", sets: 4, reps: "15" }, { name: "Ausfallschritte mit Hanteln", sets: 3, reps: "10/Seite" }, { name: "Wadenheben", sets: 3, reps: "20" }] },
+    { day: 11, focus: "Core & Cardio", exercises: [{ name: "Crunches", sets: 3, reps: "25" }, { name: "Leg Raises", sets: 3, reps: "15" }, { name: "Russian Twists (10kg)", sets: 3, reps: "20" }, { name: "Jumping Jacks", sets: 3, reps: "45 Sek" }] },
+    { day: 12, focus: "Aktive Erholung", exercises: [{ name: "Spaziergang / Stretching", sets: 1, reps: "25 Min" }] },
+    { day: 13, focus: "Ganzkörper Kraft", exercises: [{ name: "Deadlift (10kg je Hand)", sets: 4, reps: "10" }, { name: "Schulterdrücken (10kg)", sets: 4, reps: "10" }, { name: "Squat + Press (10kg)", sets: 3, reps: "12" }, { name: "Plank", sets: 3, reps: "45 Sek" }] },
+    { day: 14, focus: "Ruhetag 🧘", exercises: [{ name: "Vollständige Erholung", sets: 1, reps: "—" }] },
+
+    { day: 15, focus: "Push Intensiv", exercises: [{ name: "Liegestütze (Diamant)", sets: 4, reps: "12" }, { name: "Schulterdrücken (10kg)", sets: 4, reps: "15" }, { name: "Seitliches Heben (10kg)", sets: 4, reps: "12" }, { name: "Trizeps Kickbacks (10kg)", sets: 4, reps: "15" }] },
+    { day: 16, focus: "Pull Intensiv", exercises: [{ name: "Bizeps Curls (10kg)", sets: 4, reps: "15" }, { name: "Bent-over Row (10kg)", sets: 4, reps: "15" }, { name: "Hammer Curls (10kg)", sets: 4, reps: "12" }, { name: "Shrugs (10kg)", sets: 3, reps: "15" }] },
+    { day: 17, focus: "Beine Intensiv", exercises: [{ name: "Bulgarian Split Squat (10kg)", sets: 4, reps: "10/Seite" }, { name: "Sumo Squat (10kg)", sets: 4, reps: "15" }, { name: "Hip Thrusts mit Hantel", sets: 4, reps: "15" }, { name: "Wadenheben einbeinig", sets: 3, reps: "15/Seite" }] },
+    { day: 18, focus: "Core Intensiv", exercises: [{ name: "Plank", sets: 4, reps: "1 Min" }, { name: "Russian Twists (10kg)", sets: 4, reps: "25" }, { name: "Leg Raises", sets: 4, reps: "15" }, { name: "Bicycle Crunches", sets: 3, reps: "30" }] },
+    { day: 19, focus: "Aktive Erholung", exercises: [{ name: "Yoga / Stretching", sets: 1, reps: "30 Min" }] },
+    { day: 20, focus: "HIIT Ganzkörper", exercises: [{ name: "Burpees", sets: 4, reps: "12" }, { name: "Squat Jumps", sets: 4, reps: "15" }, { name: "Mountainclimbers", sets: 4, reps: "45 Sek" }, { name: "High Knees", sets: 4, reps: "45 Sek" }] },
+    { day: 21, focus: "Ruhetag 🧘", exercises: [{ name: "Vollständige Erholung", sets: 1, reps: "—" }] },
+
+    { day: 22, focus: "Push Peak", exercises: [{ name: "Liegestütze (Fuß erhöht)", sets: 5, reps: "12" }, { name: "Arnold Press (10kg)", sets: 4, reps: "12" }, { name: "Seitliches Heben (10kg)", sets: 4, reps: "15" }, { name: "Trizeps Dips", sets: 4, reps: "15" }] },
+    { day: 23, focus: "Pull Peak", exercises: [{ name: "Bizeps Curls (10kg)", sets: 5, reps: "15" }, { name: "Bent-over Row (10kg)", sets: 5, reps: "12" }, { name: "Konzentrations-Curls (10kg)", sets: 3, reps: "12/Seite" }, { name: "Plank", sets: 3, reps: "1 Min" }] },
+    { day: 24, focus: "Beine Peak", exercises: [{ name: "Kniebeugen (10kg)", sets: 5, reps: "15" }, { name: "Bulgarian Split Squat (10kg)", sets: 4, reps: "12/Seite" }, { name: "Romanian Deadlift (10kg)", sets: 4, reps: "12" }, { name: "Hip Thrusts", sets: 4, reps: "20" }] },
+    { day: 25, focus: "Core Peak", exercises: [{ name: "Plank", sets: 5, reps: "1 Min" }, { name: "Russian Twists (10kg)", sets: 4, reps: "30" }, { name: "Leg Raises", sets: 4, reps: "20" }, { name: "Mountainclimbers", sets: 4, reps: "1 Min" }] },
+    { day: 26, focus: "Aktive Erholung", exercises: [{ name: "Stretching + Atemübungen", sets: 1, reps: "30 Min" }] },
+    { day: 27, focus: "Ganzkörper Kraft", exercises: [{ name: "Squat + Press (10kg)", sets: 5, reps: "12" }, { name: "Deadlift (10kg)", sets: 5, reps: "10" }, { name: "Liegestütze", sets: 5, reps: "15" }, { name: "Plank", sets: 3, reps: "1 Min" }] },
+    { day: 28, focus: "Aktive Erholung", exercises: [{ name: "Spaziergang / Dehnen", sets: 1, reps: "30 Min" }] },
+
+    { day: 29, focus: "HIIT Finale", exercises: [{ name: "Burpees", sets: 5, reps: "15" }, { name: "Squat Jumps", sets: 5, reps: "15" }, { name: "Mountainclimbers", sets: 5, reps: "1 Min" }, { name: "Liegestütze", sets: 5, reps: "15" }] },
+    { day: 30, focus: "🏆 Challenge Complete", exercises: [{ name: "Ganzkörper Workout deiner Wahl – Lieblings-Übungen!", sets: 1, reps: "Feier dich!" }] },
+  ];
+
+  var MEALS = [
+    { breakfast: "Haferflocken mit Mandelmilch, Banane & Leinsamen", lunch: "Rote Linsensuppe mit Vollkornbrot", dinner: "Tofu-Gemüse-Pfanne mit Reis" },
+    { breakfast: "Smoothie Bowl (Mango, Spinat, Pflanzenmilch, Chiasamen)", lunch: "Kichererbsen-Salat mit Tomaten, Gurke & Tahini", dinner: "Süßkartoffel-Dahl (rote Linsen, Kokosmilch, Spinat)" },
+    { breakfast: "Vollkorntoast mit Avocado & Hanfsamen", lunch: "Edamame-Bowl mit Quinoa, Brokkoli & Sojasoße", dinner: "Vegane Bolognese (Sojaschnetzel) mit Vollkornnudeln" },
+    { breakfast: "Chia-Pudding (Mandelmilch, Beeren, Nüsse)", lunch: "Linsen-Tomaten-Suppe mit Vollkornbrot", dinner: "Tempeh-Stir-Fry mit Pak Choi, Karotten & Jasminreis" },
+    { breakfast: "Porridge mit Walnüssen, Apfel & Zimt", lunch: "Vegane Wraps mit schwarzen Bohnen, Salat, Paprika & Guacamole", dinner: "Kichererbsen-Curry mit Kokosmilch & Basmatireis" },
+    { breakfast: "Smoothie (Spinat, Banane, Mandelmilch, Proteinpulver vegan)", lunch: "Quinoa-Salat mit Kichererbsen, Gurke, Tomate & Zitrone", dinner: "Tofu-Ramen (Gemüsebrühe, Reisnudeln, Sojasprossen, Tofu)" },
+    { breakfast: "Avocado-Toast mit Vollkornbrot & Hanfsamen", lunch: "Rote-Linsen-Dal mit Kokosmilch & Naan", dinner: "Vegane Gemüse-Pizza auf Vollkornteig" },
+
+    { breakfast: "Overnight Oats (Pflanzenmilch, Chia, Beeren)", lunch: "Edamame-Wrap mit Avocado & Salat", dinner: "Black-Bean-Tacos mit Paprika, Mais & Salsa" },
+    { breakfast: "Haferbrei mit Erdnussbutter & Banane", lunch: "Linsensalat (grüne Linsen, Paprika, Tomaten, Petersilie)", dinner: "Süßkartoffel-Kichererbsen-Bowl mit Tahini-Dressing" },
+    { breakfast: "Smoothie Bowl (Blaubeeren, Kokosmilch, Granola)", lunch: "Vollkornnudelauflauf mit Gemüse & Tomatensauce", dinner: "Tofu-Schaschlik mit gegrilltem Gemüse & Quinoa" },
+    { breakfast: "Toast mit Mandelmus & Bananenscheiben", lunch: "Gazpacho (kalt, vegan) mit Vollkornbrot", dinner: "Seitan-Gulasch mit Kartoffeln & Rotkohl" },
+    { breakfast: "Chia-Pudding mit Mango & Kokosraspeln", lunch: "Falafel-Bowl mit Hummus, Tabbouleh & Fladenbrot", dinner: "Soba-Nudeln mit Brokkoli, Tofu & Erdnusssauce" },
+    { breakfast: "Müsli mit pflanzlichem Joghurt & frischen Früchten", lunch: "Kichererbsen-Gemüse-Suppe", dinner: "Vegane Paella mit Paprika, Erbsen & Artischocken" },
+    { breakfast: "Vollkornpancakes mit Ahornsirup & Beeren", lunch: "Linsensalat mit Walnüssen & Balsamico", dinner: "Tempeh-Burger mit Süßkartoffel-Fries" },
+
+    { breakfast: "Smoothie (Mandelmilch, Erdnussbutter, Banane, Haferflocken)", lunch: "Zucchini-Kichererbsen-Pfanne mit Couscous", dinner: "Tofu-Tikka-Masala mit Basmatireis" },
+    { breakfast: "Haferflocken mit Mandelmilch, Datteln & Mandeln", lunch: "Vegane Sushi-Bowl (Reis, Avocado, Gurke, Edamame, Sojasoße)", dinner: "Schwarze-Bohnen-Chili mit Mais & Vollkornreis" },
+    { breakfast: "Chia-Pudding mit Erdbeeren & Leinsamen", lunch: "Rote-Linsen-Suppe mit Kokosmilch & Koriander", dinner: "Tofu-Gemüse-Curry mit Jasminreis" },
+    { breakfast: "Avocado-Toast mit Tomaten & Sprossen", lunch: "Kichererbsen-Wraps mit Spinat, Hummus & Paprika", dinner: "Veganes Stroganoff (Seitan, Champignon-frei, Erbsen) & Nudeln" },
+    { breakfast: "Beeren-Smoothie Bowl mit Granola & Kokosflocken", lunch: "Quinoa-Gemüse-Bowl mit Tahini", dinner: "Süßkartoffel-Linsen-Dal mit Naan" },
+    { breakfast: "Overnight Oats mit Walnüssen, Apfel & Zimt", lunch: "Erbsensuppe mit Vollkornbrot & Senf", dinner: "Teriyaki-Tofu mit Brokkoli & Vollkornreis" },
+    { breakfast: "Vollkorntoast mit Erdnussbutter & Bananenscheiben", lunch: "Falafel mit Tabbouleh & Joghurt (Sojajoghurt)", dinner: "Vegane Gemüse-Lasagne" },
+
+    { breakfast: "Porridge mit Hanfsamen, Blaubeeren & Mandelmilch", lunch: "Kichererbsen-Curry mit Spinat & Basmatireis", dinner: "Tofu-Bowl mit Quinoa, Avocado & Sesam-Dressing" },
+    { breakfast: "Smoothie (Grünkohl, Mango, Ingwer, Pflanzenmilch)", lunch: "Linsen-Gemüse-Pfanne mit Vollkornreis", dinner: "Black-Bean-Quesadilla mit Guacamole & Salsa" },
+    { breakfast: "Müsli mit Sojajoghurt, Beeren & Chiasamen", lunch: "Edamame-Avocado-Wrap mit Sojasoße", dinner: "Veganes Ramen (Gemüsebrühe, Reisnudeln, Tofu, Pak Choi)" },
+    { breakfast: "Haferbrei mit Cashewbutter & Heidelbeeren", lunch: "Marokkanischer Kichererbsen-Eintopf mit Couscous", dinner: "Tempeh-Stir-Fry mit Pak Choi & Ingwer-Reis" },
+    { breakfast: "Chia-Pudding mit Granatapfel & Pistazien", lunch: "Vegane Burritos mit Bohnen, Paprika & Avocado", dinner: "Tofu-Schaschlik mit Quinoa-Salat" },
+    { breakfast: "Smoothie Bowl (Mango, Kokosmilch, Granola, Beeren)", lunch: "Rote-Bete-Linsen-Salat mit Walnüssen", dinner: "Kichererbsen-Spinat-Curry mit Basmatireis" },
+    { breakfast: "🏆 Lieblingsfrühstück deiner Wahl!", lunch: "🏆 Lieblingsessen deiner Wahl!", dinner: "🏆 Feier-Abendessen: Veganes Festmenü!" },
+  ];
+
+  var WEEK_COLORS = ["#4ade80", "#34d399", "#22d3ee", "#818cf8"];
+  var WEEK_LABELS = ["Woche 1 – Eingewöhnung", "Woche 2 – Aufbau", "Woche 3 – Intensivierung", "Woche 4 – Peak"];
+
+  // REZEPTE – Schlüssel = Mahlzeit-String aus MEALS
+  var RECIPES = {
+    // ── WOCHE 1 ──────────────────────────────────────────────────────────────
+
+    "Haferflocken mit Mandelmilch, Banane & Leinsamen": {
+      zutaten: ["5 gehäufte EL Haferflocken","250 ml Mandelmilch (ca. 1 Tasse)","1 Banane","1 EL Leinsamen","1 TL Ahornsirup (optional)","1 Prise Zimt"],
+      schritte: ["Mandelmilch in einem kleinen Topf bei mittlerer Hitze erwärmen (nicht kochen).","Haferflocken einrühren und unter Rühren 3–4 Min. quellen lassen bis cremig.","In eine Schüssel geben. Banane in Scheiben schneiden und drauflegen.","Mit Leinsamen, Zimt und Ahornsirup toppen. Sofort essen."],
+      tipp: "Für mehr Protein 1 EL Hanfsamen oder Chiasamen dazugeben."
+    },
+    "Rote Linsensuppe mit Vollkornbrot": {
+      zutaten: ["150 g rote Linsen","1 Zwiebel","2 Knoblauchzehen","2 Karotten","1 Dose Tomaten (400 g)","750 ml Gemüsebrühe","1 TL Kreuzkümmel","1 TL Paprikapulver","1 EL Olivenöl","Salz, Pfeffer","2 Scheiben Vollkornbrot"],
+      schritte: ["Linsen abspülen. Zwiebel, Knoblauch und Karotten fein würfeln.","Olivenöl in Topf erhitzen, Zwiebel 4 Min. dünsten, Knoblauch und Karotten dazu, 2 Min. weiter.","Gewürze einrühren, 30 Sek. anrösten. Tomaten, Linsen und Brühe dazugeben.","20 Min. köcheln lassen. Mit Stabmixer halb pürieren (cremig aber mit Stückchen). Abschmecken.","Mit Vollkornbrot servieren."],
+      tipp: "Hält sich 3 Tage im Kühlschrank – perfekt zum Vorkochen."
+    },
+    "Tofu-Gemüse-Pfanne mit Reis": {
+      zutaten: ["200 g fester Tofu","150 g Langkornreis","1 Paprika","1 Zucchini","2 EL Sojasoße","1 EL Sesamöl","1 TL Ingwer (gerieben)","2 Knoblauchzehen","1 EL Öl","Sesam zum Bestreuen"],
+      schritte: ["Reis nach Packungsanweisung kochen (ca. 15 Min.).","Tofu trocken tupfen, in 2 cm Würfel schneiden. In Öl bei hoher Hitze 4 Min. pro Seite goldbraun braten. Beiseite stellen.","Paprika und Zucchini in Streifen schneiden. Im gleichen Öl 4 Min. anbraten.","Knoblauch und Ingwer dazu, 1 Min. anschwitzen. Tofu wieder rein.","Sojasoße und Sesamöl drüber, alles schwenken. Mit Reis servieren, Sesam drüberstreuen."],
+      tipp: "Tofu vorher 30 Min. pressen (Küchenpapier + schweres Buch) = knuspriger."
+    },
+
+    "Smoothie Bowl (Mango, Spinat, Pflanzenmilch, Chiasamen)": {
+      zutaten: ["200 g TK-Mango","40 g Babyspinat","6–7 EL Hafermilch","½ Banane","2 EL Chiasamen","Optional: Bananenscheiben, Kokosraspeln als Topping"],
+      schritte: ["Mango, Spinat, Banane und Hafermilch in den Mixer geben.","Auf höchster Stufe mixen bis glatt. Wenig Milch = dicke Konsistenz (Ziel!).","In Schüssel geben, Chiasamen drüberstreuen. Optional Toppings drauf.","Sofort essen – die Bowl wird schnell flüssiger."],
+      tipp: "TK-Mango macht die Bowl kälter und dicker als frische Mango."
+    },
+    "Kichererbsen-Salat mit Tomaten, Gurke & Tahini": {
+      zutaten: ["240 g Kichererbsen (Dose, abgetropft)","2 Tomaten","½ Gurke","2 EL Tahini","1½ EL Zitronensaft","1 Knoblauchzehe","2 EL Wasser","1 EL Olivenöl","1 TL geräuchertes Paprikapulver","Salz"],
+      schritte: ["Kichererbsen abspülen. Tomaten würfeln, Gurke in Scheiben schneiden.","Tahini, Zitronensaft, gepressten Knoblauch, Olivenöl, Wasser und Salz glatt rühren. Falls zu dick: mehr Wasser löffelweise.","Alles vermengen, Dressing drüber, mit Paprikapulver bestreuen."],
+      tipp: "Dressing separat aufbewahren wenn du es nicht sofort isst."
+    },
+    "Süßkartoffel-Dahl (rote Linsen, Kokosmilch, Spinat)": {
+      zutaten: ["150 g rote Linsen","300 g Süßkartoffel","400 ml Kokosmilch (Dose)","80 g Babyspinat","300 ml Gemüsebrühe","1 Zwiebel","3 Knoblauchzehen","1 TL Ingwer (gerieben)","2 TL Currypulver","1 TL Kurkuma","½ TL Kreuzkümmel","1 EL Öl","1 EL Zitronensaft","Salz"],
+      schritte: ["Linsen abspülen. Süßkartoffel schälen und in 2 cm Würfel schneiden. Zwiebel fein würfeln.","Öl erhitzen, Zwiebel 5 Min. glasig dünsten. Knoblauch + Ingwer dazu, 1 Min.","Gewürze einrühren, 30 Sek. anrösten. Süßkartoffel und Linsen rein.","Kokosmilch und Brühe dazugießen, salzen. Zum Kochen bringen.","18–20 Min. bei mittlerer Hitze köcheln bis alles weich. Spinat einrühren, 2 Min. zusammenfallen lassen. Zitronensaft, abschmecken."],
+      tipp: "Ergibt 2 Portionen – zweite Portion schmeckt am nächsten Tag noch besser."
+    },
+
+    "Vollkorntoast mit Avocado & Hanfsamen": {
+      zutaten: ["2 Scheiben Vollkorntoast","1 reife Avocado","2 EL Hanfsamen","½ Zitrone","Salz, Pfeffer","Chiliflocken (optional)"],
+      schritte: ["Toast toasten. Avocado halbieren, Kern entfernen, Fruchtfleisch mit Gabel zerdrücken.","Zitronensaft, Salz und Pfeffer unterrühren.","Avocado-Masse auf Toast streichen. Hanfsamen und Chiliflocken drüber."],
+      tipp: "Direkt essen – Avocado oxidiert schnell."
+    },
+    "Edamame-Bowl mit Quinoa, Brokkoli & Sojasoße": {
+      zutaten: ["120 g Quinoa (trocken)","150 g TK-Edamame (geschält)","200 g Brokkoli","2 EL Sojasoße","1 EL Sesamöl","1 TL Sesamkörner","1 Knoblauchzehe","Salz"],
+      schritte: ["Quinoa (doppelte Menge Wasser) 15 Min. kochen. Edamame nach Packung garen (meist 4 Min. kochend).","Brokkoli in Röschen teilen, 4 Min. blanchieren oder in Pfanne mit Knoblauch anbraten.","Quinoa in Bowls, Edamame und Brokkoli drauf. Sojasoße und Sesamöl drüber, Sesam bestreuen."],
+      tipp: "Quinoa vorkochen und kalt stellen – eignet sich super als Meal-Prep."
+    },
+    "Vegane Bolognese (Sojaschnetzel) mit Vollkornnudeln": {
+      zutaten: ["100 g Sojaschnetzel (trocken)","250 g Vollkornnudeln","1 Dose Tomaten (400 g)","1 Zwiebel","3 Knoblauchzehen","1 Karotte","1 EL Tomatenmark","2 TL Paprikapulver","1 TL Oregano","1 TL Olivenöl","Salz, Pfeffer","Hefeflocken zum Bestreuen"],
+      schritte: ["Sojaschnetzel in heißer Gemüsebrühe 10 Min. einweichen, dann gut ausdrücken.","Nudeln nach Packung kochen. Zwiebel, Knoblauch, Karotte fein würfeln.","Olivenöl erhitzen, Gemüse 5 Min. anbraten. Sojaschnetzel dazu, goldbraun rösten.","Tomatenmark einrühren, 1 Min. anrösten. Tomaten, Gewürze und etwas Brühe dazu. 15 Min. köcheln. Abschmecken.","Mit Nudeln servieren, Hefeflocken drüber."],
+      tipp: "Hefeflocken geben einen käseähnlichen Geschmack – sehr empfehlenswert!"
+    },
+
+    "Chia-Pudding (Mandelmilch, Beeren, Nüsse)": {
+      zutaten: ["4 EL Chiasamen","250 ml Mandelmilch","1 TL Vanilleextrakt","1 TL Ahornsirup","100 g gemischte Beeren (frisch oder TK)","1 EL gehackte Walnüsse oder Mandeln"],
+      schritte: ["Chiasamen, Mandelmilch, Vanille und Ahornsirup in ein Glas oder Schüssel geben. Gut umrühren.","Abdecken und mindestens 4 Stunden, besser über Nacht, in den Kühlschrank stellen.","Am nächsten Morgen nochmals umrühren (Chiasamen quellen ungleichmäßig). Mit Beeren und Nüssen toppen."],
+      tipp: "Abends vorbereiten – das schnellste Frühstück überhaupt."
+    },
+    "Linsen-Tomaten-Suppe mit Vollkornbrot": {
+      zutaten: ["150 g rote Linsen","1 Dose Tomaten (400 g)","1 Zwiebel","2 Knoblauchzehen","600 ml Gemüsebrühe","1 TL Kreuzkümmel","1 TL Paprikapulver","1 EL Olivenöl","Saft ½ Zitrone","Salz, Pfeffer","2 Scheiben Vollkornbrot"],
+      schritte: ["Linsen abspülen. Zwiebel und Knoblauch würfeln.","Olivenöl erhitzen, Zwiebel 4 Min. glasig dünsten, Knoblauch und Gewürze 1 Min. anrösten.","Tomaten, Linsen und Brühe dazu. 20 Min. köcheln bis Linsen sehr weich.","Pürieren (halb oder ganz je nach Vorliebe). Zitronensaft, Salz, Pfeffer. Mit Brot servieren."],
+      tipp: "Ein Klecks Sojajoghurt obendrauf macht die Suppe besonders cremig."
+    },
+    "Tempeh-Stir-Fry mit Pak Choi, Karotten & Jasminreis": {
+      zutaten: ["200 g Tempeh","150 g Jasminreis","2 Pak Choi","2 Karotten","3 EL Sojasoße","1 EL Sesamöl","1 EL Reisessig","1 TL Ingwer (gerieben)","2 Knoblauchzehen","1 EL Öl","Sesam"],
+      schritte: ["Reis kochen. Tempeh in dünne Scheiben schneiden. Pak Choi vierteln, Karotten in dünne Stifte.","Tempeh in Öl bei hoher Hitze 3 Min. pro Seite goldbraun braten. Herausnehmen.","Karotten 3 Min. anbraten, Pak Choi und Knoblauch + Ingwer dazu, 2 Min.","Tempeh zurück. Sojasoße, Sesamöl und Reisessig drüber, schwenken. Mit Reis und Sesam servieren."],
+      tipp: "Tempeh vorher 10 Min. in Sojasoße marinieren für intensiveren Geschmack."
+    },
+
+    "Porridge mit Walnüssen, Apfel & Zimt": {
+      zutaten: ["5 EL Haferflocken","250 ml Pflanzenmilch","1 Apfel","1 EL Walnüsse (gehackt)","½ TL Zimt","1 TL Ahornsirup","1 Prise Salz"],
+      schritte: ["Pflanzenmilch mit Prise Salz erwärmen. Haferflocken einrühren, 4 Min. bei mittlerer Hitze quellen lassen.","Apfel reiben oder in kleine Würfel schneiden. In den Porridge einrühren.","In Schüssel geben, Walnüsse, Zimt und Ahornsirup drüber."],
+      tipp: "Apfel einreiben (nicht nur drauflegen) macht den Porridge natürlich süß."
+    },
+    "Vegane Wraps mit schwarzen Bohnen, Salat, Paprika & Guacamole": {
+      zutaten: ["2 Vollkorn-Tortillafladen","240 g schwarze Bohnen (Dose)","1 reife Avocado","1 Paprika","4 Salatblätter","1 Tomate","Saft 1 Limette","½ TL Kreuzkümmel","Salz, Chiliflocken"],
+      schritte: ["Avocado mit Limettensaft, Kreuzkümmel und Salz zerdrücken (Guacamole).","Bohnen abspülen. Paprika und Tomate würfeln.","Tortillafladen kurz in Pfanne erwärmen. Mit Guacamole bestreichen. Bohnen, Salat, Paprika und Tomate drauf. Fest einrollen."],
+      tipp: "Guacamole sofort verwenden – sie oxidiert schnell."
+    },
+    "Kichererbsen-Curry mit Kokosmilch & Basmatireis": {
+      zutaten: ["240 g Kichererbsen (Dose)","400 ml Kokosmilch","150 g Basmatireis","1 Dose Tomaten (400 g)","1 Zwiebel","3 Knoblauchzehen","2 TL Currypulver","1 TL Kurkuma","1 TL Kreuzkümmel","1 EL Öl","Salz","Frischer Koriander (optional)"],
+      schritte: ["Reis kochen. Zwiebel fein würfeln, in Öl 5 Min. glasig dünsten.","Knoblauch und Gewürze dazu, 1 Min. anrösten. Tomaten einrühren, 5 Min. einkochen.","Kichererbsen und Kokosmilch dazu. 15 Min. köcheln. Mit Salz abschmecken.","Mit Reis servieren, Koriander drüber (falls vorhanden)."],
+      tipp: "Für mehr Schärfe 1 TL Chilipulver oder frische Chili dazu."
+    },
+
+    "Smoothie (Spinat, Banane, Mandelmilch, Proteinpulver vegan)": {
+      zutaten: ["40 g Babyspinat","2 Bananen","300 ml Mandelmilch","1 Portion veganes Proteinpulver (ca. 30 g)","1 EL Erdnussbutter (optional)","4–5 Eiswürfel"],
+      schritte: ["Alle Zutaten in den Mixer geben. Bananen in Stücke brechen für den Mixer.","Auf höchster Stufe 45 Sek. mixen bis komplett glatt.","In Glas gießen und sofort trinken."],
+      tipp: "TK-Banane statt frisch + ohne Eis = dickere, kältere Konsistenz."
+    },
+    "Quinoa-Salat mit Kichererbsen, Gurke, Tomate & Zitrone": {
+      zutaten: ["120 g Quinoa (trocken)","240 g Kichererbsen (Dose)","½ Gurke","2 Tomaten","½ rote Zwiebel","3 EL Zitronensaft","2 EL Olivenöl","Frische Petersilie","Salz, Pfeffer"],
+      schritte: ["Quinoa (doppelte Menge Wasser) kochen, 15 Min., dann auskühlen lassen.","Gurke würfeln, Tomaten würfeln, Zwiebel fein hacken.","Kichererbsen abspülen. Alles mit Quinoa vermengen.","Zitronensaft, Olivenöl, Salz, Pfeffer als Dressing drüber. Petersilie drüber."],
+      tipp: "Kalt schmeckt dieser Salat am besten – ideal als Meal-Prep."
+    },
+    "Tofu-Ramen (Gemüsebrühe, Reisnudeln, Sojasprossen, Tofu)": {
+      zutaten: ["200 g fester Tofu","100 g Reisnudeln","800 ml Gemüsebrühe","100 g Sojasprossen","3 EL Sojasoße","1 EL Sesamöl","1 TL Ingwer (gerieben)","2 Knoblauchzehen","1 EL Öl","2 Frühlingszwiebeln","Sesam"],
+      schritte: ["Tofu in Würfel schneiden, in Öl bei hoher Hitze goldbraun braten (alle Seiten). Beiseite stellen.","Knoblauch und Ingwer in Topf kurz anbraten. Brühe dazu, Sojasoße einrühren. 10 Min. köcheln.","Reisnudeln nach Packung in der Brühe garen. Tofu und Sojasprossen rein.","In Schüsseln verteilen, Sesamöl drüber, Frühlingszwiebeln und Sesam drüber."],
+      tipp: "Sesamöl erst ganz am Ende drüber – Hitze zerstört das Aroma."
+    },
+
+    "Avocado-Toast mit Vollkornbrot & Hanfsamen": {
+      zutaten: ["2 Scheiben Vollkornbrot","1 reife Avocado","2 EL Hanfsamen","Saft ½ Zitrone","Salz, Pfeffer","Chiliflocken (optional)","Kirschtomaten (optional)"],
+      schritte: ["Toast toasten. Avocado mit Gabel zerdrücken, Zitronensaft, Salz, Pfeffer einarbeiten.","Avocado-Masse auf Toast streichen. Hanfsamen und Chiliflocken drüber.","Optional: halbierte Kirschtomaten drauflegen."],
+      tipp: "Hanfsamen geben ca. 5 g Protein pro EL – nicht auslassen!"
+    },
+    "Rote-Linsen-Dal mit Kokosmilch & Naan": {
+      zutaten: ["150 g rote Linsen","400 ml Kokosmilch","300 ml Gemüsebrühe","1 Zwiebel","3 Knoblauchzehen","1 TL Ingwer","2 TL Currypulver","1 TL Kurkuma","1 EL Öl","Saft ½ Zitrone","Salz","2 Naan-Brote"],
+      schritte: ["Linsen abspülen. Zwiebel würfeln, in Öl 5 Min. dünsten. Knoblauch, Ingwer, Gewürze 1 Min. anrösten.","Linsen, Kokosmilch und Brühe dazu. 20 Min. bei mittlerer Hitze köcheln bis Linsen zerfallen.","Mit Zitronensaft abschmecken. Naan in Pfanne ohne Öl kurz aufwärmen. Zusammen servieren."],
+      tipp: "Dal wird beim Stehen dicker – bei Bedarf etwas Wasser einrühren."
+    },
+    "Vegane Gemüse-Pizza auf Vollkornteig": {
+      zutaten: ["1 Vollkornpizzaboden (fertig, oder selbst: 200 g Vollkornmehl, 1 Päckchen Trockenhefe, 1 TL Salz, 2 EL Olivenöl, 120 ml lauwarmes Wasser)","4 EL Tomatensauce","1 Paprika","½ Zucchini","½ rote Zwiebel","100 g veganer Käse oder 3 EL Hefeflocken","1 TL Oregano"],
+      schritte: ["Ofen auf 220°C vorheizen. Selbstgebacken: Teig kneten, 30 Min. gehen lassen, ausrollen.","Tomatensauce auf Teig streichen. Gemüse in dünne Scheiben schneiden, drauflegen.","Veganen Käse oder Hefeflocken drüber, Oregano drüber.","20–25 Min. backen bis der Rand goldbraun ist."],
+      tipp: "Fertige Vollkornböden sparen Zeit und schmecken gut."
+    },
+
+    // ── WOCHE 2 ──────────────────────────────────────────────────────────────
+
+    "Overnight Oats (Pflanzenmilch, Chia, Beeren)": {
+      zutaten: ["5 EL Haferflocken","250 ml Pflanzenmilch","1 EL Chiasamen","1 TL Ahornsirup","100 g Beeren (frisch oder TK)","1 EL Nüsse oder Granola"],
+      schritte: ["Haferflocken, Pflanzenmilch, Chiasamen und Ahornsirup in ein Glas oder Schüssel geben. Gut vermengen.","Abdecken und über Nacht (min. 6 Stunden) im Kühlschrank lassen.","Morgens herausnehmen, kurz umrühren. Beeren und Nüsse drüber. Fertig!"],
+      tipp: "In einem Einmachglas zubereiten – so kann man es direkt mitnehmen."
+    },
+    "Edamame-Wrap mit Avocado & Salat": {
+      zutaten: ["2 Vollkorn-Tortillafladen","150 g TK-Edamame (geschält, gegart)","1 Avocado","4 Salatblätter","1 TL Sesamöl","1 EL Sojasoße","1 TL Zitronensaft","Salz"],
+      schritte: ["Edamame nach Packung garen, abtropfen lassen. Avocado in Scheiben schneiden.","Sesamöl, Sojasoße und Zitronensaft vermengen (Dressing).","Tortilla erwärmen. Salat, Avocado, Edamame drauf. Dressing drüber, fest einrollen."],
+      tipp: "Wrap sofort essen – sonst wird er weich."
+    },
+    "Black-Bean-Tacos mit Paprika, Mais & Salsa": {
+      zutaten: ["240 g schwarze Bohnen (Dose)","4 kleine Tortillas (Mais oder Vollkorn)","1 Paprika","120 g Mais (Dose oder TK)","2 Tomaten","½ rote Zwiebel","Saft 1 Limette","½ TL Kreuzkümmel","½ TL Paprikapulver","1 EL Öl","Salz","Frischer Koriander (optional)"],
+      schritte: ["Tomaten, Zwiebel fein würfeln für Salsa. Mit Limettensaft, Salz und Koriander vermengen.","Bohnen abspülen. Paprika würfeln. Öl erhitzen, Paprika 3 Min. anbraten. Bohnen, Mais und Gewürze dazu, 3 Min. weiter.","Tortillas in Pfanne ohne Öl erwärmen. Füllung drauf, Salsa obendrauf."],
+      tipp: "Bohnen leicht zerdrücken in der Pfanne – hält besser in der Taco."
+    },
+
+    "Haferbrei mit Erdnussbutter & Banane": {
+      zutaten: ["5 EL Haferflocken","250 ml Pflanzenmilch","1 EL Erdnussbutter","1 Banane","1 TL Ahornsirup","1 Prise Zimt"],
+      schritte: ["Pflanzenmilch erhitzen, Haferflocken einrühren. 4 Min. bei mittlerer Hitze rühren.","Vom Herd nehmen, Erdnussbutter einrühren bis cremig.","In Schüssel geben, Banane in Scheiben drauf, Ahornsirup und Zimt drüber."],
+      tipp: "Erdnussbutter gibt viel Protein und hält stundenlang satt."
+    },
+    "Linsensalat (grüne Linsen, Paprika, Tomaten, Petersilie)": {
+      zutaten: ["200 g grüne Linsen (trocken)","1 Paprika","2 Tomaten","½ Gurke","4 EL Olivenöl","3 EL Rotweinessig oder Zitronensaft","Frische Petersilie","1 TL Senf","Salz, Pfeffer"],
+      schritte: ["Linsen in reichlich Wasser 20–25 Min. kochen bis gar aber noch bissfest. Abgießen und auskühlen lassen.","Paprika, Tomaten und Gurke würfeln.","Olivenöl, Essig, Senf, Salz und Pfeffer zu Dressing verrühren.","Alles vermengen, Petersilie drüber, Dressing drüber. Mind. 15 Min. ziehen lassen."],
+      tipp: "Grüne Linsen behalten ihre Form – ideal für Salate."
+    },
+    "Süßkartoffel-Kichererbsen-Bowl mit Tahini-Dressing": {
+      zutaten: ["2 mittelgroße Süßkartoffeln","240 g Kichererbsen (Dose)","2 EL Tahini","2 EL Zitronensaft","1 Knoblauchzehe","2 EL Wasser","1 EL Olivenöl","1 TL Paprikapulver","Salz","Handvoll Rucola oder Babyspinat"],
+      schritte: ["Ofen auf 200°C. Süßkartoffel in 2 cm Würfel schneiden, mit Olivenöl und Salz vermengen. 25 Min. backen bis weich und leicht karamellisiert. Kichererbsen die letzten 10 Min. dazu.","Tahini, Zitronensaft, Knoblauch, Wasser, Salz zu Dressing verrühren.","Rucola in Bowl, Süßkartoffel und Kichererbsen drauf. Dressing drüber."],
+      tipp: "Kichererbsen im Ofen werden leicht knusprig – sehr lecker!"
+    },
+
+    "Smoothie Bowl (Blaubeeren, Kokosmilch, Granola)": {
+      zutaten: ["200 g TK-Blaubeeren","200 ml Kokosmilch (aus Dose, für Cremigkeit)","½ Banane","3 EL Granola","1 EL Kokosflocken","1 EL Chiasamen"],
+      schritte: ["Blaubeeren, Banane und Kokosmilch in Mixer. Auf höchster Stufe glatt mixen. Die Masse soll sehr dick sein.","In Schüssel geben. Granola, Kokosflocken und Chiasamen drüberstreuen.","Sofort essen."],
+      tipp: "Kokosmilch aus der Dose (nicht Tetrapack) macht die Bowl cremiger."
+    },
+    "Vollkornnudelauflauf mit Gemüse & Tomatensauce": {
+      zutaten: ["250 g Vollkornnudeln","1 Dose Tomaten (400 g)","1 Zucchini","1 Paprika","1 Zwiebel","2 Knoblauchzehen","1 TL Oregano","1 TL Basilikum","2 EL Hefeflocken","1 EL Olivenöl","Salz, Pfeffer"],
+      schritte: ["Nudeln al dente kochen, abgießen. Ofen auf 180°C vorheizen.","Zwiebel, Knoblauch, Zucchini und Paprika würfeln. In Öl 5 Min. anbraten. Tomaten und Kräuter dazu, 5 Min. köcheln.","Nudeln mit Sauce in Auflaufform geben, vermengen. Hefeflocken drüber.","20 Min. backen."],
+      tipp: "Ideal für Meal-Prep: 2 Portionen machen, zweite einfrieren."
+    },
+    "Tofu-Schaschlik mit gegrilltem Gemüse & Quinoa": {
+      zutaten: ["250 g fester Tofu","150 g Quinoa","1 Paprika","1 Zucchini","1 rote Zwiebel","3 EL Sojasoße","2 EL Olivenöl","1 TL Paprikapulver","1 TL Knoblauchpulver","Holzspieße (30 Min. wässern)"],
+      schritte: ["Quinoa kochen. Tofu in 3 cm Würfel schneiden. Gemüse in gleich große Stücke.","Sojasoße, Olivenöl, Paprika- und Knoblauchpulver vermischen. Tofu und Gemüse darin 20 Min. marinieren.","Auf Spieße stecken, abwechselnd. In Grillpfanne oder Ofen (220°C) 15–20 Min. garen, wenden.","Mit Quinoa servieren."],
+      tipp: "Tofu vorher pressen für bessere Marinade-Aufnahme."
+    },
+
+    "Toast mit Mandelmus & Bananenscheiben": {
+      zutaten: ["2 Scheiben Vollkorntoast","2 EL Mandelmus","1 Banane","1 TL Honig oder Ahornsirup","1 Prise Zimt"],
+      schritte: ["Toast toasten. Mandelmus gleichmäßig draufstreichen.","Banane in Scheiben schneiden und drauflegen.","Ahornsirup und Zimt drüber. Sofort essen."],
+      tipp: "Mandelmus hat mehr Kalzium als Erdnussbutter – gut für vegane Ernährung."
+    },
+    "Gazpacho (kalt, vegan) mit Vollkornbrot": {
+      zutaten: ["500 g reife Tomaten","1 Paprika","½ Gurke","1 Knoblauchzehe","3 EL Olivenöl","2 EL Rotweinessig","Salz, Pfeffer","2 Scheiben Vollkornbrot"],
+      schritte: ["Tomaten, Paprika, Gurke grob würfeln. Mit Knoblauch in Mixer geben.","Olivenöl, Essig, Salz und Pfeffer dazu. Auf höchster Stufe 1 Min. pürieren.","Durch Sieb streichen für feinere Konsistenz (optional). Mindestens 2 Stunden kühlen.","Eiskalt mit Vollkornbrot servieren."],
+      tipp: "Gazpacho muss wirklich kalt sein – am besten über Nacht im Kühlschrank."
+    },
+    "Seitan-Gulasch mit Kartoffeln & Rotkohl": {
+      zutaten: ["200 g Seitan (fertig oder selbst gemacht)","400 g Kartoffeln","200 g Rotkohl","1 Zwiebel","2 EL Tomatenmark","2 TL Paprikapulver (edelsüß)","1 TL Paprikapulver (geräuchert)","400 ml Gemüsebrühe","1 EL Öl","Salz, Pfeffer","1 TL Majoran"],
+      schritte: ["Seitan und Kartoffeln in 2 cm Würfel schneiden. Rotkohl fein hobeln. Zwiebel würfeln.","Öl erhitzen, Zwiebel 5 Min. anbraten. Seitan dazu, 3 Min. bräunen. Tomatenmark und Paprikapulver einrühren, 1 Min.","Kartoffeln, Rotkohl und Brühe dazu. 25 Min. köcheln bis Kartoffeln gar. Majoran, Salz, Pfeffer."],
+      tipp: "Seitan aus dem Reformhaus oder Asiashop kaufen – spart viel Zeit."
+    },
+
+    "Chia-Pudding mit Mango & Kokosraspeln": {
+      zutaten: ["4 EL Chiasamen","250 ml Kokosmilch","1 TL Vanilleextrakt","1 TL Ahornsirup","150 g Mango (frisch oder TK, aufgetaut)","2 EL Kokosraspeln"],
+      schritte: ["Chiasamen, Kokosmilch, Vanille und Ahornsirup vermengen. Gut umrühren.","Abdecken und über Nacht in Kühlschrank stellen. Morgens nochmals umrühren.","Mango würfeln oder pürieren. Auf Chia-Pudding geben, Kokosraspeln drüber."],
+      tipp: "Mit Kokosmilch aus der Dose wird der Pudding besonders cremig."
+    },
+    "Falafel-Bowl mit Hummus, Tabbouleh & Fladenbrot": {
+      zutaten: ["6 Falafel (Fertigprodukt oder selbst: 240 g Kichererbsen, Knoblauch, Petersilie, Kreuzkümmel, Mehl)","4 EL Hummus","100 g Couscous","2 Tomaten","½ Gurke","Frische Petersilie","Saft 1 Zitrone","2 EL Olivenöl","1 Fladenbrot","Salz"],
+      schritte: ["Couscous mit kochend heißem Wasser (gleiches Volumen) übergießen, 5 Min. quellen lassen. Mit Gabel auflockern.","Tomaten, Gurke fein würfeln. Mit Couscous, Petersilie, Zitronensaft und Olivenöl vermengen (Tabbouleh).","Falafel in Pfanne oder Ofen (200°C, 15 Min.) erhitzen. In Bowl anrichten: Tabbouleh, Hummus, Falafel, Fladenbrot."],
+      tipp: "Fertige Falafel aus dem Supermarkt machen das Gericht zum Schnellrezept."
+    },
+    "Soba-Nudeln mit Brokkoli, Tofu & Erdnusssauce": {
+      zutaten: ["150 g Soba-Nudeln","200 g fester Tofu","200 g Brokkoli","3 EL Erdnussbutter","2 EL Sojasoße","1 EL Reisessig","1 TL Sesamöl","1 TL Ingwer (gerieben)","2 EL warmes Wasser","Sesam","Frühlingszwiebeln"],
+      schritte: ["Soba-Nudeln nach Packung kochen (meist 4–5 Min.), kalt abspülen. Tofu würfeln, goldbraun braten.","Brokkoli in Röschen 3 Min. blanchieren.","Erdnussbutter, Sojasoße, Reisessig, Sesamöl, Ingwer und Wasser zu Sauce verrühren.","Nudeln, Brokkoli und Tofu vermengen, Sauce drüber. Sesam und Frühlingszwiebeln drüber."],
+      tipp: "Soba-Nudeln kalt abspülen verhindert Kleben und macht sie bissfester."
+    },
+
+    "Müsli mit pflanzlichem Joghurt & frischen Früchten": {
+      zutaten: ["5 EL Müsli (ohne Zuschlagszucker)","200 g Sojajoghurt (oder anderer Pflanzenjoghurt)","1 Banane","100 g Beeren oder saisonale Früchte","1 EL Nüsse (Mandeln, Walnüsse)","1 TL Ahornsirup"],
+      schritte: ["Joghurt in Schüssel geben. Müsli drüber schichten.","Früchte in Stücke schneiden und drauflegen. Nüsse und Ahornsirup drüber.","Kurz ziehen lassen (2–3 Min.) damit Müsli leicht weich wird."],
+      tipp: "Sojajoghurt hat besonders viel Protein unter den Pflanzenjoghurts."
+    },
+    "Kichererbsen-Gemüse-Suppe": {
+      zutaten: ["240 g Kichererbsen (Dose)","2 Karotten","2 Stangen Sellerie","1 Dose Tomaten (400 g)","1 Zwiebel","3 Knoblauchzehen","800 ml Gemüsebrühe","1 TL Kurkuma","1 TL Kreuzkümmel","1 EL Olivenöl","Salz, Pfeffer","Frische Petersilie"],
+      schritte: ["Zwiebel, Karotten und Sellerie würfeln. In Öl 5 Min. anbraten, Knoblauch und Gewürze 1 Min.","Tomaten, Kichererbsen und Brühe dazu. 20 Min. köcheln.","Abschmecken, Petersilie drüber."],
+      tipp: "Diese Suppe ist die perfekte Meal-Prep – 4 Portionen auf einmal kochen."
+    },
+    "Vegane Paella mit Paprika, Erbsen & Artischocken": {
+      zutaten: ["200 g Paellareis (oder Rundkornreis)","1 rote + 1 gelbe Paprika","150 g TK-Erbsen","1 Dose Artischockenherzen","1 Dose Tomaten (400 g)","1 Zwiebel","3 Knoblauchzehen","1 TL Safran (oder Kurkuma)","1 TL Paprikapulver (geräuchert)","700 ml Gemüsebrühe","2 EL Olivenöl","Salz"],
+      schritte: ["Olivenöl in großer Pfanne erhitzen. Zwiebel, Knoblauch und Paprika 5 Min. anbraten.","Tomaten, Paprikapulver und Safran dazu, 3 Min. einkochen.","Reis einrühren, Brühe dazu. Aufkochen, dann Hitze reduzieren. 20 Min. OHNE Rühren köcheln lassen.","In letzten 5 Min. Erbsen und Artischocken drauf. Mit Zitronenscheiben servieren."],
+      tipp: "Nicht rühren ist das Geheimnis der Paella – Geduld zahlt sich aus."
+    },
+
+    "Vollkornpancakes mit Ahornsirup & Beeren": {
+      zutaten: ["150 g Vollkornmehl","1 EL Backpulver","1 EL Zucker","1 Prise Salz","250 ml Pflanzenmilch","1 EL Apfelessig","2 EL Öl","3 EL Ahornsirup","100 g Beeren"],
+      schritte: ["Pflanzenmilch und Apfelessig verrühren, 5 Min. stehen lassen (wird zu veganer Buttermilch).","Mehl, Backpulver, Zucker und Salz vermengen. Milchmischung und Öl dazurühren. Klumpen sind ok.","Beschichtete Pfanne bei mittlerer Hitze. Je 1 gehäufter EL Teig pro Pancake. 2 Min. bis Blasen entstehen, wenden, 1 Min.","Mit Beeren und Ahornsirup servieren."],
+      tipp: "Den Teig nicht zu sehr rühren – dann werden die Pancakes fluffiger."
+    },
+    "Linsensalat mit Walnüssen & Balsamico": {
+      zutaten: ["200 g grüne Linsen","1 EL Walnüsse (gehackt)","3 EL Balsamicoessig","2 EL Olivenöl","1 TL Dijonsenf","½ rote Zwiebel","Frische Kräuter (Thymian, Petersilie)","Salz, Pfeffer"],
+      schritte: ["Linsen 20–25 Min. in Wasser kochen bis gar aber bissfest. Abgießen, auskühlen.","Zwiebel fein würfeln. Balsamico, Olivenöl und Senf zu Dressing verrühren.","Linsen mit Zwiebel und Kräutern vermengen. Dressing drüber, Walnüsse drüber."],
+      tipp: "Balsamico-Dressing einziehen lassen – mindestens 15 Min. warten."
+    },
+    "Tempeh-Burger mit Süßkartoffel-Fries": {
+      zutaten: ["200 g Tempeh","2 Burgerbrötchen (Vollkorn)","2 mittelgroße Süßkartoffeln","1 Avocado","2 Salatblätter","1 Tomate","3 EL Sojasoße","1 EL Ahornsirup","1 TL Paprikapulver","1 EL Öl"],
+      schritte: ["Süßkartoffel in Stifte schneiden (0,5 cm). Mit Öl und Salz vermengen, bei 220°C 25–30 Min. backen (wenden nach 15 Min.).","Tempeh in dünne Scheiben schneiden. Sojasoße, Ahornsirup und Paprikapulver vermengen – Tempeh 10 Min. marinieren.","Tempeh in Pfanne 3 Min. pro Seite braten bis karamellisiert.","Brötchen toasten. Aufschichten: Salat, Tempeh, Tomate, Avocado."],
+      tipp: "Tempeh-Marinade ist das Herzstück – nicht auslassen!"
+    },
+
+    // ── WOCHE 3 ──────────────────────────────────────────────────────────────
+
+    "Smoothie (Mandelmilch, Erdnussbutter, Banane, Haferflocken)": {
+      zutaten: ["2 Bananen (TK oder frisch)","2 EL Erdnussbutter","3 EL Haferflocken","300 ml Mandelmilch","1 EL Chiasamen","1 TL Ahornsirup","4 Eiswürfel"],
+      schritte: ["Alle Zutaten in Mixer geben.","60 Sek. auf höchster Stufe mixen bis glatt und cremig.","Sofort trinken."],
+      tipp: "Mit TK-Banane klappt es noch besser und du brauchst keine Eiswürfel."
+    },
+    "Zucchini-Kichererbsen-Pfanne mit Couscous": {
+      zutaten: ["120 g Couscous","240 g Kichererbsen (Dose)","2 Zucchini","1 Zwiebel","2 Knoblauchzehen","1 TL Kreuzkümmel","1 TL Paprikapulver","2 EL Olivenöl","Saft ½ Zitrone","Frische Petersilie","Salz"],
+      schritte: ["Couscous mit gleicher Menge kochendem Wasser (ca. 120 ml) übergießen, 5 Min. quellen, mit Gabel auflockern.","Zucchini in Scheiben schneiden, Zwiebel würfeln. In Olivenöl 5 Min. anbraten. Knoblauch und Gewürze 1 Min.","Kichererbsen dazu, 3 Min. weiter. Zitronensaft, Salz. Mit Couscous und Petersilie servieren."],
+      tipp: "Zucchini nicht zu weich werden lassen – leichter Biss ist besser."
+    },
+    "Tofu-Tikka-Masala mit Basmatireis": {
+      zutaten: ["250 g fester Tofu","150 g Basmatireis","400 ml Kokosmilch","1 Dose Tomaten (400 g)","1 Zwiebel","3 Knoblauchzehen","1 TL Ingwer","2 TL Garam Masala","1 TL Kurkuma","1 TL Paprikapulver","1 EL Öl","Salz","Frischer Koriander"],
+      schritte: ["Reis kochen. Tofu in 2 cm Würfel schneiden. In Öl bei hoher Hitze goldbraun braten (alle Seiten). Herausnehmen.","Zwiebel 5 Min. anbraten. Knoblauch, Ingwer und Gewürze 1 Min. anrösten. Tomaten einrühren, 5 Min. einkochen.","Kokosmilch dazu, 10 Min. köcheln. Tofu rein, weitere 5 Min. Salzen, mit Reis und Koriander servieren."],
+      tipp: "Garam Masala ist die Schlüsselgewürzmischung – lohnt sich zu kaufen."
+    },
+
+    "Haferflocken mit Mandelmilch, Datteln & Mandeln": {
+      zutaten: ["5 EL Haferflocken","250 ml Mandelmilch","3 Medjool-Datteln","1 EL gehackte Mandeln","½ TL Vanilleextrakt","1 Prise Zimt"],
+      schritte: ["Datteln entkernen und fein hacken. Mandelmilch erhitzen.","Haferflocken einrühren, 4 Min. köcheln. Vanilleextrakt und Datteln einrühren.","In Schüssel geben, Mandeln und Zimt drüber."],
+      tipp: "Datteln sind natürliche Süßungsmittel – kein Zucker nötig."
+    },
+    "Vegane Sushi-Bowl (Reis, Avocado, Gurke, Edamame, Sojasoße)": {
+      zutaten: ["150 g Sushireis","2 EL Reisessig","1 TL Zucker","1 TL Salz","1 Avocado","½ Gurke","100 g Edamame (gegart)","2 EL Sojasoße","1 EL Sesamöl","1 TL Sesamkörner","1 Noriblatt (optional, zerschnitten)"],
+      schritte: ["Sushireis kochen. Reisessig, Zucker und Salz verrühren (warm damit Zucker löst), unter heißen Reis heben. Abkühlen.","Avocado in Scheiben, Gurke in dünne Scheiben.","Reis in Bowls, Avocado, Gurke und Edamame drauf. Sojasoße und Sesamöl drüber, Sesam und Nori drüber."],
+      tipp: "Sushireis muss Zimmertemperatur haben – niemals heiß anrichten."
+    },
+    "Schwarze-Bohnen-Chili mit Mais & Vollkornreis": {
+      zutaten: ["480 g schwarze Bohnen (2 Dosen)","120 g Mais (Dose)","150 g Vollkornreis","1 Dose Tomaten (400 g)","1 Zwiebel","3 Knoblauchzehen","1 Paprika","1 TL Kreuzkümmel","1 TL Chiliflocken","1 TL Paprikapulver","1 EL Öl","Saft 1 Limette","Salz"],
+      schritte: ["Reis kochen. Zwiebel, Knoblauch und Paprika würfeln.","Öl erhitzen, Gemüse 5 Min. anbraten. Gewürze 1 Min. anrösten. Tomaten dazu, 5 Min. einkochen.","Bohnen und Mais dazu, 15 Min. köcheln. Limettensaft, Salz. Mit Reis servieren."],
+      tipp: "Chili schmeckt am nächsten Tag besser – perfekt für Meal-Prep."
+    },
+
+    "Chia-Pudding mit Erdbeeren & Leinsamen": {
+      zutaten: ["4 EL Chiasamen","250 ml Pflanzenmilch","1 TL Vanilleextrakt","1 TL Ahornsirup","150 g frische Erdbeeren","1 EL Leinsamen (geschrotet)"],
+      schritte: ["Chiasamen, Pflanzenmilch, Vanille und Ahornsirup vermengen. Gut umrühren, abdecken, über Nacht kühlen.","Morgens Erdbeeren halbieren oder vierteln.","Pudding mit Gabel auflockern, Erdbeeren drauf, Leinsamen drüber."],
+      tipp: "Geschrotete Leinsamen sind verdaulicher als ganze."
+    },
+    "Rote-Linsen-Suppe mit Kokosmilch & Koriander": {
+      zutaten: ["150 g rote Linsen","400 ml Kokosmilch","400 ml Gemüsebrühe","1 Zwiebel","2 Knoblauchzehen","1 TL Ingwer","2 TL Currypulver","1 TL Kurkuma","1 EL Öl","Saft ½ Limette","Frischer Koriander","Salz"],
+      schritte: ["Linsen abspülen. Zwiebel würfeln, in Öl 5 Min. dünsten. Knoblauch, Ingwer und Gewürze 1 Min. anrösten.","Linsen, Kokosmilch und Brühe dazu. 18–20 Min. köcheln bis Linsen weich.","Pürieren (oder halb pürieren). Limettensaft, Salz. Mit Koriander servieren."],
+      tipp: "Frischer Koriander macht einen großen Unterschied – nicht auslassen."
+    },
+    "Tofu-Gemüse-Curry mit Jasminreis": {
+      zutaten: ["200 g fester Tofu","150 g Jasminreis","400 ml Kokosmilch","1 Dose Tomaten (400 g)","1 Zucchini","1 Paprika","1 Zwiebel","3 Knoblauchzehen","2 TL Currypulver","1 TL Kurkuma","1 EL Öl","Salz"],
+      schritte: ["Reis kochen. Tofu würfeln, goldbraun braten. Herausnehmen.","Zwiebel, Paprika, Zucchini würfeln. In Öl 5 Min. anbraten. Knoblauch und Gewürze 1 Min.","Tomaten und Kokosmilch dazu, 10 Min. köcheln. Tofu rein, 5 Min. Abschmecken, mit Reis servieren."],
+      tipp: "Tofu separat braten und erst am Ende dazu – bleibt so fester."
+    },
+
+    "Avocado-Toast mit Tomaten & Sprossen": {
+      zutaten: ["2 Scheiben Vollkorntoast","1 Avocado","100 g Kirschtomaten","1 EL Sprossen (Alfalfa, Radieschen o.ä.)","Saft ½ Zitrone","Salz, Pfeffer","1 TL Olivenöl"],
+      schritte: ["Toast toasten. Avocado zerdrücken, mit Zitronensaft, Salz und Pfeffer würzen.","Auf Toast streichen. Kirschtomaten halbieren und drauflegen. Sprossen drüber.","Mit Olivenöl beträufeln, Pfeffer drüber."],
+      tipp: "Sprossen kaufen oder selbst keimen (dauert 3–5 Tage) – voller Nährstoffe."
+    },
+    "Kichererbsen-Wraps mit Spinat, Hummus & Paprika": {
+      zutaten: ["2 Vollkorn-Tortillas","240 g Kichererbsen (Dose)","4 EL Hummus","60 g Babyspinat","1 Paprika","½ TL Kreuzkümmel","½ TL Paprikapulver","1 EL Olivenöl","Salz"],
+      schritte: ["Kichererbsen abspülen. In Pfanne mit Olivenöl, Kreuzkümmel und Paprikapulver 5 Min. anbraten.","Paprika in Streifen schneiden.","Tortilla erwärmen. Hummus drauf, Spinat, Paprikastreifen und gewürzte Kichererbsen drauf. Einrollen."],
+      tipp: "Hummus als Kleber verwenden – hält den Wrap gut zusammen."
+    },
+    "Veganes Stroganoff (Seitan, Champignon-frei, Erbsen) & Nudeln": {
+      zutaten: ["200 g Seitan","200 g TK-Erbsen","250 g Nudeln (Vollkorn)","200 ml Hafer-Cuisine (vegane Sahne)","200 ml Gemüsebrühe","1 Zwiebel","2 Knoblauchzehen","1 EL Senf","1 EL Sojasoße","1 EL Öl","Salz, Pfeffer","Frische Petersilie"],
+      schritte: ["Nudeln kochen. Seitan in Streifen schneiden. Zwiebel würfeln.","Öl erhitzen, Zwiebel 4 Min. anbraten. Seitan dazu, 3 Min. bräunen.","Knoblauch, Senf und Sojasoße einrühren. Brühe und Hafer-Cuisine dazu, 10 Min. köcheln.","Erbsen dazu, 3 Min. Salzen, pfeffern. Mit Nudeln und Petersilie servieren."],
+      tipp: "Hafer-Cuisine ist die beste vegane Sahne-Alternative für Saucen."
+    },
+
+    "Beeren-Smoothie Bowl mit Granola & Kokosflocken": {
+      zutaten: ["200 g TK-Beerenmix","½ Banane","5 EL Pflanzenmilch","3 EL Granola","1 EL Kokosflocken","1 EL Chiasamen","1 TL Ahornsirup"],
+      schritte: ["Beeren, Banane und Pflanzenmilch in Mixer. Sehr dick mixen (wenig Milch).","In Schüssel geben. Granola, Kokosflocken und Chiasamen drüber. Ahornsirup drüber.","Sofort essen."],
+      tipp: "Je weniger Milch, desto dicker und \"löffelbar\" die Bowl."
+    },
+    "Quinoa-Gemüse-Bowl mit Tahini": {
+      zutaten: ["120 g Quinoa","1 Paprika","1 Zucchini","200 g Kichererbsen (Dose)","2 EL Tahini","2 EL Zitronensaft","1 Knoblauchzehe","2 EL Wasser","1 EL Olivenöl","Salz","Frische Kräuter"],
+      schritte: ["Quinoa kochen. Gemüse in Würfel schneiden, mit Olivenöl und Salz bei 200°C 20 Min. backen.","Tahini, Zitronensaft, Knoblauch, Wasser und Salz zu cremigem Dressing verrühren.","Quinoa in Bowl, Gemüse und Kichererbsen drauf. Tahini-Dressing drüber, Kräuter drüber."],
+      tipp: "Dressing großzügig – Quinoa braucht viel Würze."
+    },
+    "Süßkartoffel-Linsen-Dal mit Naan": {
+      zutaten: ["150 g rote Linsen","250 g Süßkartoffel","400 ml Kokosmilch","200 ml Gemüsebrühe","1 Zwiebel","3 Knoblauchzehen","1 TL Ingwer","2 TL Currypulver","1 TL Kurkuma","1 EL Öl","Saft ½ Zitrone","2 Naan-Brote","Salz"],
+      schritte: ["Linsen abspülen. Süßkartoffel in kleine Würfel. Zwiebel würfeln.","Öl erhitzen, Zwiebel 5 Min. dünsten. Knoblauch, Ingwer, Gewürze 1 Min. anrösten.","Süßkartoffel, Linsen, Kokosmilch und Brühe dazu. 20 Min. köcheln. Zitronensaft, Salz.","Naan in Pfanne ohne Öl erwärmen. Zusammen servieren."],
+      tipp: "Identisch mit Tag-2-Dahl – doppelte Portion am Tag 2 machen und einfrieren!"
+    },
+
+    "Overnight Oats mit Walnüssen, Apfel & Zimt": {
+      zutaten: ["5 EL Haferflocken","250 ml Pflanzenmilch","1 EL Chiasamen","1 Apfel","1 EL gehackte Walnüsse","½ TL Zimt","1 TL Ahornsirup"],
+      schritte: ["Haferflocken, Pflanzenmilch, Chiasamen, Zimt und Ahornsirup vermengen. Abdecken und über Nacht kühlen.","Morgens Apfel reiben oder in kleine Würfel schneiden. Unter die Oats heben oder drauflegen.","Mit Walnüssen toppen."],
+      tipp: "Apfel einreiben direkt in die Oats für natürliche Süße."
+    },
+    "Erbsensuppe mit Vollkornbrot & Senf": {
+      zutaten: ["400 g TK-Erbsen","1 Zwiebel","2 Knoblauchzehen","600 ml Gemüsebrühe","1 EL Olivenöl","1 EL Dijonsenf","Saft ½ Zitrone","Salz, Pfeffer","2 Scheiben Vollkornbrot","Frische Minze (optional)"],
+      schritte: ["Zwiebel würfeln, in Öl 4 Min. anbraten. Knoblauch dazu, 1 Min.","Erbsen und Brühe dazu. 5 Min. köcheln bis Erbsen gar.","Pürieren bis glatt. Senf, Zitronensaft, Salz, Pfeffer einrühren. Mit Brot und Minze servieren."],
+      tipp: "Diese Suppe geht in 15 Minuten – schnellste Mittagsküche!"
+    },
+    "Teriyaki-Tofu mit Brokkoli & Vollkornreis": {
+      zutaten: ["200 g fester Tofu","200 g Brokkoli","150 g Vollkornreis","3 EL Sojasoße","1 EL Ahornsirup","1 EL Reisessig","1 TL Speisestärke","1 TL Sesamöl","1 EL Öl","Sesam"],
+      schritte: ["Reis kochen. Tofu pressen und in Scheiben schneiden. In Öl 3 Min. pro Seite goldbraun braten.","Sojasoße, Ahornsirup, Reisessig und Stärke verrühren. Über Tofu gießen, 2 Min. karamellisieren lassen.","Brokkoli 4 Min. blanchieren. Mit Reis und Tofu anrichten, Sesam und Sesamöl drüber."],
+      tipp: "Stärke in der Sauce macht die Teriyaki-Glasur schön glänzend."
+    },
+
+    "Vollkorntoast mit Erdnussbutter & Bananenscheiben": {
+      zutaten: ["2 Scheiben Vollkorntoast","2 EL Erdnussbutter","1 Banane","1 TL Ahornsirup","1 Prise Zimt"],
+      schritte: ["Toast toasten. Erdnussbutter gleichmäßig draufstreichen.","Banane in Scheiben schneiden und drauflegen.","Ahornsirup und Zimt drüber."],
+      tipp: "Natürliche Erdnussbutter (nur Erdnüsse) ist am proteinreichsten."
+    },
+    "Falafel mit Tabbouleh & Joghurt (Sojajoghurt)": {
+      zutaten: ["6 Falafel","100 g Couscous","2 Tomaten","½ Gurke","Frische Petersilie","Saft 1 Zitrone","2 EL Olivenöl","4 EL Sojajoghurt","1 Knoblauchzehe","Salz"],
+      schritte: ["Couscous mit kochendem Wasser (gleiches Volumen) übergießen, 5 Min. quellen.","Tomaten und Gurke fein würfeln. Mit Couscous, Petersilie, Zitronensaft und Olivenöl vermengen.","Sojajoghurt mit gepresstem Knoblauch und Salz verrühren.","Falafel erhitzen. Alles zusammen anrichten."],
+      tipp: "Sojajoghurt mit Knoblauch ist eine einfache vegane Tzatziki-Alternative."
+    },
+    "Vegane Gemüse-Lasagne": {
+      zutaten: ["200 g Lasagneplatten","1 Dose Tomaten (400 g)","1 Zucchini","1 Paprika","1 Karotte","200 g TK-Spinat","400 ml Pflanzenmilch","3 EL Mehl","2 EL vegane Butter","3 EL Hefeflocken","1 Zwiebel","2 Knoblauchzehen","1 TL Oregano","Salz, Pfeffer"],
+      schritte: ["Ofen auf 180°C. Gemüse würfeln, in Öl 5 Min. anbraten. Tomaten, Knoblauch, Oregano dazu – 10 Min. köcheln. Spinat unterheben.","Vegane Béchamel: Butter schmelzen, Mehl einrühren (1 Min.), Pflanzenmilch nach und nach einrühren, aufkochen bis dick. Salzen, Hefeflocken rein.","In Auflaufform schichten: Sauce, Platten, Gemüse, Béchamel. Wiederholen. Mit Béchamel abschließen.","35–40 Min. backen."],
+      tipp: "Lasagne ist Aufwand, aber lohnt sich – macht 4 Portionen, Rest einfrieren."
+    },
+
+    // ── WOCHE 4 ──────────────────────────────────────────────────────────────
+
+    "Porridge mit Hanfsamen, Blaubeeren & Mandelmilch": {
+      zutaten: ["5 EL Haferflocken","250 ml Mandelmilch","2 EL Hanfsamen","100 g Blaubeeren","1 TL Ahornsirup","½ TL Vanilleextrakt"],
+      schritte: ["Mandelmilch erhitzen, Haferflocken und Vanille einrühren. 4 Min. köcheln.","In Schüssel geben. Blaubeeren, Hanfsamen und Ahornsirup drüber."],
+      tipp: "Hanfsamen geben 5 g vollständiges Protein pro EL – ideal für vegane Ernährung."
+    },
+    "Kichererbsen-Curry mit Spinat & Basmatireis": {
+      zutaten: ["240 g Kichererbsen (Dose)","80 g Babyspinat","150 g Basmatireis","400 ml Kokosmilch","1 Dose Tomaten (400 g)","1 Zwiebel","3 Knoblauchzehen","2 TL Currypulver","1 TL Kurkuma","1 EL Öl","Salz"],
+      schritte: ["Reis kochen. Zwiebel in Öl 5 Min. dünsten. Knoblauch und Gewürze 1 Min. anrösten.","Tomaten einrühren, 5 Min. einkochen. Kichererbsen und Kokosmilch dazu, 15 Min. köcheln.","Spinat einrühren, 2 Min. zusammenfallen lassen. Mit Reis servieren."],
+      tipp: "Spinat erst ganz am Ende – so bleiben Farbe und Nährstoffe erhalten."
+    },
+    "Tofu-Bowl mit Quinoa, Avocado & Sesam-Dressing": {
+      zutaten: ["200 g fester Tofu","120 g Quinoa","1 Avocado","2 EL Tahini","2 EL Sojasoße","1 EL Sesamöl","1 EL Reisessig","1 TL Ingwer","1 TL Sesam","1 EL Öl","Salz"],
+      schritte: ["Quinoa kochen. Tofu würfeln, in Öl goldbraun braten.","Tahini, Sojasoße, Sesamöl, Reisessig und Ingwer zu Dressing verrühren. Falls zu dick: etwas Wasser.","Quinoa in Bowl, Tofu drauf, Avocado in Scheiben. Dressing großzügig drüber, Sesam drüber."],
+      tipp: "Sesam-Dressing hält sich 5 Tage im Kühlschrank."
+    },
+
+    "Smoothie (Grünkohl, Mango, Ingwer, Pflanzenmilch)": {
+      zutaten: ["40 g Grünkohl (Stiele entfernt)","150 g TK-Mango","1 cm frischer Ingwer","300 ml Pflanzenmilch","½ Banane","1 TL Ahornsirup"],
+      schritte: ["Grünkohl waschen, Stiele entfernen (nur Blätter). Mit Mango, Banane, Ingwer und Pflanzenmilch in Mixer.","60 Sek. auf höchster Stufe mixen. Ahornsirup dazu, nochmals kurz mixen.","Sofort trinken."],
+      tipp: "Mango süßt natürlich und überdeckt den Grünkohl-Geschmack komplett."
+    },
+    "Linsen-Gemüse-Pfanne mit Vollkornreis": {
+      zutaten: ["150 g grüne Linsen (vorgekocht oder Dose)","150 g Vollkornreis","1 Paprika","1 Karotte","1 Zucchini","2 EL Sojasoße","1 TL Kreuzkümmel","1 TL Paprikapulver","1 EL Öl","Salz, Pfeffer"],
+      schritte: ["Reis kochen. Linsen aus Dose abspülen (oder 20 Min. vorkochen).","Gemüse würfeln. In Öl bei hoher Hitze 5 Min. anbraten.","Linsen, Sojasoße und Gewürze dazu, 3 Min. zusammen braten. Mit Reis servieren."],
+      tipp: "Linsen aus der Dose sparen 20 Min. Kochzeit."
+    },
+    "Black-Bean-Quesadilla mit Guacamole & Salsa": {
+      zutaten: ["4 Tortillafladen","240 g schwarze Bohnen (Dose)","1 Paprika","1 Avocado","2 Tomaten","½ rote Zwiebel","Saft 1 Limette","1 TL Kreuzkümmel","½ TL Chiliflocken","100 g veganer Käse (optional)","1 EL Öl","Salz"],
+      schritte: ["Guacamole: Avocado zerdrücken, Limettensaft, Salz. Salsa: Tomaten + Zwiebel würfeln, Limettensaft, Salz.","Bohnen abspülen. Paprika würfeln. Pfanne erhitzen. 1 Tortilla rein, Bohnen, Paprika und ggf. Käse auf eine Hälfte. Zweite Hälfte drüberklappen.","In Öl 2–3 Min. pro Seite goldbraun braten. In Dreiecke schneiden. Mit Guacamole und Salsa servieren."],
+      tipp: "Käse ist optional – ohne ist es leichter aber genauso lecker."
+    },
+
+    "Müsli mit Sojajoghurt, Beeren & Chiasamen": {
+      zutaten: ["5 EL Müsli","200 g Sojajoghurt","100 g Beeren","1 EL Chiasamen","1 TL Ahornsirup"],
+      schritte: ["Joghurt in Schüssel, Müsli drüber. Beeren drauf.","Chiasamen und Ahornsirup drüber. 2–3 Min. warten damit Müsli weich wird."],
+      tipp: "Sojajoghurt hat unter den Pflanzenjoghurts den höchsten Proteingehalt."
+    },
+    "Edamame-Avocado-Wrap mit Sojasoße": {
+      zutaten: ["2 Vollkorn-Tortillas","150 g Edamame (gegart)","1 Avocado","4 Salatblätter","2 EL Sojasoße","1 TL Sesamöl","1 TL Sesamkörner","Saft ½ Limette"],
+      schritte: ["Avocado in Scheiben schneiden, mit Limettensaft beträufeln.","Sojasoße und Sesamöl vermengen.","Tortilla erwärmen. Salat, Avocado und Edamame drauf. Sojasoßen-Dressing drüber, Sesam drüber, einrollen."],
+      tipp: "Limettensaft auf die Avocado verlangsamt die Oxidation."
+    },
+    "Veganes Ramen (Gemüsebrühe, Reisnudeln, Tofu, Pak Choi)": {
+      zutaten: ["200 g fester Tofu","100 g Reisnudeln","2 Pak Choi","800 ml Gemüsebrühe","3 EL Sojasoße","1 EL Miso-Paste","1 EL Sesamöl","1 TL Ingwer (gerieben)","2 Knoblauchzehen","Frühlingszwiebeln","Sesam","1 EL Öl"],
+      schritte: ["Tofu würfeln, in Öl goldbraun braten. Pak Choi halbieren.","Knoblauch und Ingwer in Topf kurz anbraten. Brühe dazu, Sojasoße und Miso-Paste einrühren (Miso nicht kochen lassen, am Ende). 10 Min. köcheln.","Nudeln nach Packung garen. Pak Choi letzte 2 Min. in Brühe garen.","In Schüsseln: Nudeln, Brühe, Pak Choi und Tofu. Sesamöl, Frühlingszwiebeln, Sesam drüber."],
+      tipp: "Miso nie aufkochen – zerstört die Probiotika. Erst vom Herd nehmen dann einrühren."
+    },
+
+    "Haferbrei mit Cashewbutter & Heidelbeeren": {
+      zutaten: ["5 EL Haferflocken","250 ml Pflanzenmilch","1 EL Cashewbutter","100 g Heidelbeeren","1 TL Ahornsirup","1 Prise Salz"],
+      schritte: ["Pflanzenmilch mit Salz erhitzen. Haferflocken einrühren, 4 Min. köcheln.","Cashewbutter einrühren bis cremig. In Schüssel geben.","Heidelbeeren und Ahornsirup drüber."],
+      tipp: "Cashewbutter hat einen milderen Geschmack als Erdnussbutter – sehr cremig."
+    },
+    "Marokkanischer Kichererbsen-Eintopf mit Couscous": {
+      zutaten: ["240 g Kichererbsen (Dose)","150 g Couscous","1 Dose Tomaten (400 g)","1 Karotte","1 Zucchini","1 Zwiebel","2 Knoblauchzehen","1 TL Kreuzkümmel","1 TL Koriander","½ TL Zimt","½ TL Kurkuma","400 ml Gemüsebrühe","1 EL Olivenöl","Saft ½ Zitrone","Salz"],
+      schritte: ["Couscous mit gleicher Menge kochendem Wasser übergießen, 5 Min. quellen.","Gemüse würfeln. Zwiebel in Öl 5 Min. anbraten. Knoblauch und Gewürze 1 Min. anrösten.","Tomaten, Gemüse, Kichererbsen und Brühe dazu. 20 Min. köcheln. Zitronensaft, Salz.","Mit Couscous servieren."],
+      tipp: "Zimt im herzhaften Gericht ist ungewohnt aber typisch marokkanisch – nicht auslassen."
+    },
+    "Tempeh-Stir-Fry mit Pak Choi & Ingwer-Reis": {
+      zutaten: ["200 g Tempeh","2 Pak Choi","150 g Jasminreis","3 EL Sojasoße","1 EL Sesamöl","1 TL Ingwer (gerieben) für Sauce + 1 TL für Reis","2 Knoblauchzehen","1 EL Reisessig","1 EL Öl","Sesam"],
+      schritte: ["Reis kochen, letzten 5 Min. 1 TL geriebenen Ingwer unterrühren.","Tempeh in dünne Scheiben, in Öl 3 Min. pro Seite braten.","Pak Choi vierteln, mit Knoblauch und Ingwer 3 Min. in Pfanne anbraten.","Sojasoße, Sesamöl und Reisessig als Sauce drüber. Mit Ingwer-Reis und Sesam servieren."],
+      tipp: "Ingwer im Reis ist der besondere Twist dieses Gerichts."
+    },
+
+    "Chia-Pudding mit Granatapfel & Pistazien": {
+      zutaten: ["4 EL Chiasamen","250 ml Kokosmilch","1 TL Vanilleextrakt","1 TL Ahornsirup","Kerne 1 Granatapfels","1 EL Pistazien (gehackt)"],
+      schritte: ["Chiasamen, Kokosmilch, Vanille und Ahornsirup vermengen. Über Nacht kühlen.","Morgens Granatapfelkerne ausklopfen. Auf Pudding geben, Pistazien drüber."],
+      tipp: "Granatapfelkerne einfach ausklopfen: Hälfte mit Schnittfläche nach unten über Schüssel, fest klopfen."
+    },
+    "Vegane Burritos mit Bohnen, Paprika & Avocado": {
+      zutaten: ["2 große Vollkorn-Tortillas","240 g schwarze Bohnen (Dose)","1 Avocado","1 Paprika","150 g Vollkornreis (gekocht)","Saft 1 Limette","½ TL Kreuzkümmel","½ TL Chiliflocken","1 EL Öl","Salz","Sojajoghurt als Ersatz für saure Sahne"],
+      schritte: ["Bohnen abspülen. Paprika würfeln. Öl erhitzen, Paprika 3 Min. anbraten. Bohnen, Kreuzkümmel, Chiliflocken und Salz dazu, 3 Min.","Avocado zerdrücken, Limettensaft, Salz.","Tortilla erwärmen. Reis, Bohnenmischung, Guacamole und Sojajoghurt drauf. Fest einrollen."],
+      tipp: "Burrito in Alufolie einrollen – hält die Form und lässt sich mitnehmen."
+    },
+    "Tofu-Schaschlik mit Quinoa-Salat": {
+      zutaten: ["250 g fester Tofu","150 g Quinoa","1 Paprika","1 Zucchini","1 rote Zwiebel","3 EL Sojasoße","2 EL Olivenöl","1 TL Paprikapulver","½ Gurke","2 Tomaten","Saft 1 Zitrone","Frische Kräuter"],
+      schritte: ["Quinoa kochen, auskühlen. Mit gewürfelter Gurke, Tomaten, Zitronensaft und Olivenöl zu Salat vermengen.","Tofu in 3 cm Würfel, Gemüse in gleich große Stücke. In Sojasoße + Öl + Paprikapulver 20 Min. marinieren.","Auf Spieße stecken. In Grillpfanne oder Ofen (220°C) 15–18 Min. garen, wenden.","Auf Quinoa-Salat servieren."],
+      tipp: "Holzspieße 30 Min. wässern damit sie nicht verbrennen."
+    },
+
+    "Smoothie Bowl (Mango, Kokosmilch, Granola, Beeren)": {
+      zutaten: ["200 g TK-Mango","100 ml Kokosmilch (aus Dose)","½ Banane","3 EL Granola","100 g Beeren","1 EL Kokosflocken","1 EL Chiasamen"],
+      schritte: ["Mango, Banane und Kokosmilch auf höchster Stufe sehr dick mixen.","In Schüssel geben. Granola, Beeren, Kokosflocken und Chiasamen drüber.","Sofort essen."],
+      tipp: "Kokosmilch aus der Dose (nicht Tetrapack) für die cremigste Konsistenz."
+    },
+    "Rote-Bete-Linsen-Salat mit Walnüssen": {
+      zutaten: ["200 g grüne Linsen","2 vorgekochte Rote Bete (ca. 200 g)","1 EL Walnüsse (gehackt)","3 EL Balsamicoessig","2 EL Olivenöl","1 TL Dijonsenf","½ TL Kreuzkümmel","Frische Petersilie","Salz, Pfeffer"],
+      schritte: ["Linsen 20–25 Min. kochen. Abgießen und auskühlen.","Rote Bete in Würfel schneiden (Handschuhe tragen!). Balsamico, Olivenöl, Senf und Kreuzkümmel verrühren.","Alles vermengen, Dressing drüber, Walnüsse und Petersilie drüber."],
+      tipp: "Vorgekochte vakuumierte Rote Bete aus dem Supermarkt spart viel Zeit und Sauerei."
+    },
+    "Kichererbsen-Spinat-Curry mit Basmatireis": {
+      zutaten: ["240 g Kichererbsen (Dose)","100 g Babyspinat","150 g Basmatireis","400 ml Kokosmilch","1 Dose Tomaten (400 g)","1 Zwiebel","3 Knoblauchzehen","1 TL Ingwer","2 TL Garam Masala","1 TL Kurkuma","1 EL Öl","Saft ½ Zitrone","Salz"],
+      schritte: ["Reis kochen. Zwiebel in Öl 5 Min. dünsten. Knoblauch, Ingwer und Gewürze 1 Min. anrösten.","Tomaten einrühren, 5 Min. einkochen. Kokosmilch und Kichererbsen dazu, 15 Min. köcheln.","Spinat einrühren, 2 Min. Zitronensaft, Salz. Mit Reis servieren."],
+      tipp: "Garam Masala am Ende nochmals nachgeben für frisches Aroma."
+    },
+
+    "🏆 Lieblingsfrühstück deiner Wahl!": {
+      zutaten: ["Was auch immer dir in den letzten 30 Tagen am besten geschmeckt hat!"],
+      schritte: ["Du weißt jetzt was dir schmeckt und was dich satt macht.","Genieße dein Lieblingsfrühstück und feiere dich für die 30 Tage! 🏆"],
+      tipp: "Du hast 30 Tage durchgehalten – das verdient das allerbeste Frühstück!"
+    },
+    "🏆 Lieblingsessen deiner Wahl!": {
+      zutaten: ["Was auch immer dir in den letzten 30 Tagen am besten geschmeckt hat!"],
+      schritte: ["Such dir dein Lieblingsmittagessen aus dem Plan raus und mach es nochmal.","30 Tage Challenge gemeistert! 🎉"],
+      tipp: "Dein Körper hat sich in 30 Tagen verändert – sei stolz!"
+    },
+    "🏆 Feier-Abendessen: Veganes Festmenü!": {
+      zutaten: ["Dein Lieblingsgericht aus den letzten 30 Tagen","Plus: etwas Besonderes wie veganen Wein, eine besondere Soße oder ein veganes Dessert"],
+      schritte: ["Such dir das Gericht aus dem Plan, das dir am besten gefallen hat.","Mach dir extra Mühe mit der Präsentation – du hast es verdient!","Feier 30 Tage Challenge abgeschlossen! 🏆🌱💪"],
+      tipp: "Du hast in 30 Tagen bewiesen: vegane Ernährung ist abwechslungsreich, lecker und machbar!"
+    },
+  };
+
+  function RecipeModal(props) {
+    var recipe = props.recipe; var name = props.name; var accent = props.accent; var onClose = props.onClose;
+    if (!recipe) return null;
+    return h('div', { onClick: onClose, style: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center" } },
+      h('div', { onClick: function(e){ e.stopPropagation(); }, style: { background: "#1e293b", borderRadius: "20px 20px 0 0", width: "100%", maxWidth: 600, maxHeight: "85vh", overflowY: "auto", padding: "24px 20px 48px" } },
+        h('div', { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 } },
+          h('div', { style: { fontSize: 15, fontWeight: 800, color: "#f8fafc", lineHeight: 1.3, maxWidth: "85%" } }, name),
+          h('button', { onClick: onClose, style: { background: "#334155", border: "none", borderRadius: "50%", width: 32, height: 32, color: "#94a3b8", fontWeight: 900, fontSize: 16, cursor: "pointer", flexShrink: 0 } }, "✕")
+        ),
+        h('div', { style: { fontSize: 11, color: accent, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, marginBottom: 10 } }, "🛒 Zutaten"),
+        h('div', { style: { background: "#0f172a", borderRadius: 12, padding: "12px 16px", marginBottom: 18 } },
+          recipe.zutaten.map(function(z, i){
+            return h('div', { key: i, style: { fontSize: 14, color: "#e2e8f0", padding: "5px 0", borderBottom: i < recipe.zutaten.length - 1 ? "1px solid #1e293b" : "none", display: "flex", gap: 8 } },
+              h('span', { style: { color: accent, fontWeight: 900 } }, "·"), z);
+          })
+        ),
+        h('div', { style: { fontSize: 11, color: accent, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2, marginBottom: 12 } }, "👨‍🍳 Zubereitung"),
+        recipe.schritte.map(function(s, i){
+          return h('div', { key: i, style: { display: "flex", gap: 12, marginBottom: 12 } },
+            h('div', { style: { minWidth: 26, height: 26, borderRadius: "50%", background: accent, color: "#0f172a", fontWeight: 900, fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 } }, i + 1),
+            h('div', { style: { fontSize: 14, color: "#e2e8f0", lineHeight: 1.55, paddingTop: 3 } }, s)
+          );
+        }),
+        recipe.tipp ? h('div', { style: { background: "#0f172a", borderRadius: 12, padding: "14px 16px", marginTop: 8, borderLeft: "3px solid " + accent } },
+          h('div', { style: { fontSize: 11, color: accent, fontWeight: 700, marginBottom: 4 } }, "💡 Tipp"),
+          h('div', { style: { fontSize: 13, color: "#94a3b8", lineHeight: 1.5 } }, recipe.tipp)
+        ) : null
+      )
+    );
+  }
+
+  function App() {
+    var STORAGE_KEY = "jeffreys-30-tage-challenge-completed";
+    var initialCompleted = (function () {
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+      } catch (e) {
+        return {};
+      }
+    })();
+    var s1 = useState(initialCompleted); var completed = s1[0], setCompleted = s1[1];
+
+    React.useEffect(function () {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(completed));
+      } catch (e) {}
+    }, [completed]);
+
+    var initialActiveDay = (function () {
+      for (var d = 1; d <= 30; d++) {
+        if (!initialCompleted[d]) return d;
+      }
+      return 30;
+    })();
+    var s2 = useState(initialActiveDay); var activeDay = s2[0], setActiveDay = s2[1];
+    var s3 = useState("workout"); var tab = s3[0], setTab = s3[1];
+    var s5 = useState(null); var activeRecipe = s5[0], setActiveRecipe = s5[1];
+    var s6 = useState(null); var activeRecipeName = s6[0], setActiveRecipeName = s6[1];
+
+    function openRecipe(mealName) { var r = RECIPES[mealName]; if (r) { setActiveRecipe(r); setActiveRecipeName(mealName); } }
+    function closeRecipe() { setActiveRecipe(null); setActiveRecipeName(null); }
+
+    function toggle(day) {
+      setCompleted(function(prev){
+        var next = Object.assign({}, prev);
+        next[day] = !next[day];
+        return next;
+      });
+    }
+
+    function copyText(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(function(){ fallbackCopy(text); });
+      } else {
+        fallbackCopy(text);
+      }
+    }
+
+    function fallbackCopy(text) {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch(e) {}
+      document.body.removeChild(ta);
+    }
+
+    var s4 = useState(""); var copiedMsg = s4[0], setCopiedMsg = s4[1];
+
+    function copyWorkout() {
+      var lines = ["Tag " + activeDay + " – " + workout.focus];
+      workout.exercises.forEach(function(ex){
+        lines.push("- " + ex.name + ": " + ex.sets + " Sätze x " + ex.reps);
+      });
+      copyText(lines.join("\n"));
+      setCopiedMsg("Workout kopiert ✓");
+      setTimeout(function(){ setCopiedMsg(""); }, 2000);
+    }
+
+    function copyMeals() {
+      var lines = [
+        "Tag " + activeDay + " – Ernährung",
+        "Frühstück: " + meal.breakfast,
+        "Mittagessen: " + meal.lunch,
+        "Abendessen: " + meal.dinner
+      ];
+      copyText(lines.join("\n"));
+      setCopiedMsg("Ernährungsplan kopiert ✓");
+      setTimeout(function(){ setCopiedMsg(""); }, 2000);
+    }
+
+    var totalDone = Object.values(completed).filter(Boolean).length;
+    var meal = MEALS[activeDay - 1] || MEALS[0];
+    var workout = WORKOUT_PLAN[activeDay - 1] || WORKOUT_PLAN[0];
+    var week = Math.floor((activeDay - 1) / 7);
+    var accent = WEEK_COLORS[week] || WEEK_COLORS[0];
+
+    var dayButtons = [];
+    for (var i = 1; i <= 30; i++) {
+      var d = i;
+      var w = Math.floor((d - 1) / 7);
+      var col = WEEK_COLORS[w];
+      dayButtons.push(h('button', {
+        key: d,
+        onClick: function(dd){ return function(){ setActiveDay(dd); }; }(d),
+        style: {
+          minWidth: 34, height: 34, borderRadius: "50%", border: "none", cursor: "pointer", fontWeight: 700, fontSize: 12,
+          background: activeDay === d ? col : (completed[d] ? col + "33" : "#1e293b"),
+          color: activeDay === d ? "#0f172a" : (completed[d] ? col : "#64748b"),
+          outline: activeDay === d ? ("2px solid " + col) : "none",
+          transition: "all 0.2s", flexShrink: 0
+        }
+      }, d));
+    }
+
+    var exerciseRows = workout.exercises.map(function(ex, i){
+      return h('div', { key: i, style: { background: "#1e293b", borderRadius: 12, padding: "14px 16px", marginBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center", borderLeft: "3px solid " + accent } },
+        h('div', null,
+          h('div', { className: "copyable", style: { fontWeight: 700, fontSize: 14, color: "#f1f5f9" } }, ex.name),
+          h('div', { style: { fontSize: 12, color: "#64748b", marginTop: 2 } }, ex.sets + " Sätze")
+        ),
+        h('div', { style: { textAlign: "right" } },
+          h('div', { style: { fontSize: 18, fontWeight: 900, color: accent } }, ex.reps),
+          h('div', { style: { fontSize: 10, color: "#475569" } }, "Wdh / Zeit")
+        )
+      );
+    });
+
+    var mealRows = [
+      { icon: "🌅", label: "Frühstück", value: meal.breakfast },
+      { icon: "☀️", label: "Mittagessen", value: meal.lunch },
+      { icon: "🌙", label: "Abendessen", value: meal.dinner },
+    ].map(function(m, i){
+      var hasRecipe = !!RECIPES[m.value];
+      return h('div', { key: i, style: { background: "#1e293b", borderRadius: 12, padding: "16px", marginBottom: 10, borderLeft: "3px solid " + accent } },
+        h('div', { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 } },
+          h('div', { style: { fontSize: 12, color: accent, fontWeight: 700 } }, m.icon + " " + m.label),
+          hasRecipe ? h('button', {
+            onClick: function(){ openRecipe(m.value); },
+            style: { fontSize: 11, color: "#0f172a", background: accent, border: "none", borderRadius: 20, padding: "3px 10px", fontWeight: 700, cursor: "pointer" }
+          }, "Rezept →") : null
+        ),
+        h('div', { className: "copyable", style: { fontSize: 14, color: "#e2e8f0", fontWeight: 500, lineHeight: 1.5 } }, m.value)
+      );
+    });
+
+    return h('div', { style: { minHeight: "100vh", background: "#0f172a", color: "#e2e8f0", fontFamily: "'Inter', -apple-system, sans-serif", padding: "0 0 60px 0" } },
+      activeRecipe ? h(RecipeModal, { recipe: activeRecipe, name: activeRecipeName, accent: accent, onClose: closeRecipe }) : null,
+      h('div', { style: { background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)", borderBottom: "1px solid #1e293b", padding: "max(24px, env(safe-area-inset-top)) 20px 0" } },
+        h('div', { style: { maxWidth: 600, margin: "0 auto" } },
+          h('div', { style: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 } },
+            h('div', null,
+              h('div', { style: { fontSize: 11, letterSpacing: 3, color: accent, fontWeight: 700, textTransform: "uppercase" } }, "30-Tage Challenge"),
+              h('h1', { style: { margin: "4px 0 0", fontSize: 22, fontWeight: 800, color: "#f8fafc" } }, "Jeffrey's Challenge 💪🌱")
+            ),
+            h('div', { style: { textAlign: "right" } },
+              h('div', { style: { fontSize: 28, fontWeight: 900, color: accent } }, totalDone),
+              h('div', { style: { fontSize: 11, color: "#64748b" } }, "/ 30 Tage")
+            )
+          ),
+          h('div', { style: { height: 4, background: "#1e293b", borderRadius: 2, marginBottom: 16 } },
+            h('div', { style: { height: "100%", width: ((totalDone / 30) * 100) + "%", background: accent, borderRadius: 2, transition: "width 0.4s" } })
+          ),
+          h('div', { style: { fontSize: 12, color: "#94a3b8", marginBottom: 12 } }, "📅 " + WEEK_LABELS[week]),
+          h('div', { style: { display: "flex", gap: 6, overflowX: "auto", paddingBottom: 12, scrollbarWidth: "none" } }, dayButtons)
+        )
+      ),
+      h('div', { style: { maxWidth: 600, margin: "0 auto", padding: "0 20px" } },
+        h('div', { style: { display: "flex", gap: 0, marginTop: 20, background: "#1e293b", borderRadius: 12, padding: 4 } },
+          ["workout", "ernaehrung"].map(function(t){
+            return h('button', {
+              key: t,
+              onClick: function(){ setTab(t); },
+              style: {
+                flex: 1, padding: "10px 0", border: "none", borderRadius: 9, cursor: "pointer", fontWeight: 700, fontSize: 13,
+                background: tab === t ? accent : "transparent",
+                color: tab === t ? "#0f172a" : "#64748b", transition: "all 0.2s"
+              }
+            }, t === "workout" ? "🏋️ Workout" : "🥦 Ernährung");
+          })
+        ),
+        h('div', { style: { marginTop: 20, display: "flex", alignItems: "center", justifyContent: "space-between" } },
+          h('div', null,
+            h('span', { style: { fontSize: 13, color: accent, fontWeight: 700 } }, "TAG " + activeDay),
+            h('h2', { style: { margin: "2px 0 0", fontSize: 18, fontWeight: 800, color: "#f8fafc" } }, tab === "workout" ? workout.focus : "Tagesplan")
+          ),
+          h('button', {
+            onClick: function(){ toggle(activeDay); },
+            style: {
+              padding: "8px 16px", borderRadius: 20, border: "none", cursor: "pointer", fontWeight: 700, fontSize: 13,
+              background: completed[activeDay] ? accent : "#1e293b",
+              color: completed[activeDay] ? "#0f172a" : "#94a3b8",
+              transition: "all 0.2s"
+            }
+          }, completed[activeDay] ? "✓ Erledigt" : "Als erledigt markieren")
+        ),
+        tab === "workout" ? h('div', { style: { marginTop: 16 } },
+          exerciseRows,
+          h('button', {
+            onClick: copyWorkout,
+            style: { width: "100%", padding: "12px", borderRadius: 10, border: "1px solid " + accent, background: "transparent", color: accent, fontWeight: 700, cursor: "pointer", fontSize: 14, marginBottom: 8 }
+          }, copiedMsg && tab === "workout" ? copiedMsg : "📋 Workout kopieren"),
+          h('div', { style: { background: "#1e293b", borderRadius: 12, padding: "12px 16px", marginTop: 8 } },
+            h('div', { style: { fontSize: 12, color: "#64748b" } }, "💡 Tipp: 60–90 Sek Pause zwischen Sätzen. Trink ausreichend Wasser!")
+          )
+        ) : null,
+        tab === "ernaehrung" ? h('div', { style: { marginTop: 16 } },
+          mealRows,
+          h('button', {
+            onClick: copyMeals,
+            style: { width: "100%", padding: "12px", borderRadius: 10, border: "1px solid " + accent, background: "transparent", color: accent, fontWeight: 700, cursor: "pointer", fontSize: 14, marginBottom: 8 }
+          }, copiedMsg && tab === "ernaehrung" ? copiedMsg : "📋 Ernährungsplan kopieren"),
+          h('div', { style: { background: "#1e293b", borderRadius: 12, padding: "12px 16px", marginTop: 8 } },
+            h('div', { style: { fontSize: 12, color: "#64748b" } }, "💧 Hydration: Mindestens 2–2,5 Liter Wasser täglich · Kein Snacken zwischen den Mahlzeiten")
+          ),
+          h('div', { style: { background: "#1e293b", borderRadius: 12, padding: "12px 16px", marginTop: 8 } },
+            h('div', { style: { fontSize: 12, color: "#64748b" } }, "🌱 Proteinquellen: Tofu, Tempeh, Seitan, Hülsenfrüchte, Edamame, Hanfsamen, Chiasamen, Sojajoghurt")
+          )
+        ) : null,
+        h('div', { style: { display: "flex", gap: 10, marginTop: 24 } },
+          h('button', { onClick: function(){ setActiveDay(function(d){ return Math.max(1, d - 1); }); }, style: { flex: 1, padding: "12px", borderRadius: 10, border: "1px solid #334155", background: "transparent", color: "#94a3b8", fontWeight: 700, cursor: "pointer", fontSize: 14 } }, "← Vorheriger Tag"),
+          h('button', { onClick: function(){ setActiveDay(function(d){ return Math.min(30, d + 1); }); }, style: { flex: 1, padding: "12px", borderRadius: 10, border: "none", background: accent, color: "#0f172a", fontWeight: 700, cursor: "pointer", fontSize: 14 } }, "Nächster Tag →")
+        )
+      )
+    );
+  }
+
+  var rootEl = document.getElementById('root');
+  if (ReactDOM.createRoot) {
+    ReactDOM.createRoot(rootEl).render(h(App));
+  } else {
+    ReactDOM.render(h(App), rootEl);
+  }
+})();
+</script>
+</body>
+</html>
